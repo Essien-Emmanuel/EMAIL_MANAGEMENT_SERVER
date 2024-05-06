@@ -1,12 +1,5 @@
-const app = require('./app');
-const PORT = 8084
+const runServer = require('./core/runServer');
+const connectToDb = require('./database/connection');
 
-app.listen(PORT, () => {
-  console.log('- App Environment:: ', PORT);
-}).on('error', (error) => {
-  if (error.code === 'EADDRINUSE') {
-    console.log(`PORT ${PORT} Already In Use!`);
-  } else {
-    console.log(error)
-  }
-})
+connectToDb().then(runServer())
+
