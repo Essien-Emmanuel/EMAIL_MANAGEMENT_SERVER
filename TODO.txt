@@ -1,0 +1,8 @@
+Email management server
+- endpoint to receive templates
+- Users can create and save email templates
+- Users can delete a template
+- Users can save their email service provider credentials
+- App will support multi email service provider channels such as MailChimp , MailGun, MailTrap, ....
+- Users can select and update the credentials of the email service provider they which to be using to send thier email
+- Users can send emails using the template
