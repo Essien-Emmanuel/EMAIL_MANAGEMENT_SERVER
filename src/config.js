@@ -4,10 +4,12 @@ dotenv.config();
 
 module.exports = {
   app: {
-    port: process.env.PORT,
-    salt: process.env.SALT_ROUNDS
+    port: +process.env.PORT,
+    env: process.env.APP_ENV.trim(),
+    salt: +process.env.SALT_ROUNDS,
+    secret: process.env.USER_JWT_SECRET.trim()
   },
   database: {
-    uri: process.env.DB_URL
+    uri: process.env.DB_URL.trim()
   }
 }
