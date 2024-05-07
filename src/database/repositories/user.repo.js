@@ -6,13 +6,13 @@ class UserRepo {
   }
 
   static getByEmail(email) {
-    return User.find({ email});
+    return User.findOne({ email});
   }
 
   static create(userData) {
     return User.create(userData)
   }
-  
+
   static update(filter, updateData) {
     return User.updateOne(filter, updateData);
   }

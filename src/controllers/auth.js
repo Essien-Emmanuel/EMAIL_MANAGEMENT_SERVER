@@ -1,12 +1,13 @@
 const intiateSignup = require('../services/auth/initiateSignup');
 
 class AuthController {
-  static signup(req, res) {
-    console.log('here')
+  static async signup(req, res) {
     const { email, password } = req.body;
-    intiateSignup({ email, password})
+    const response = await intiateSignup({ email, password})
+    console.log('here', response.data, response)
     res.json({
-      message: 'success'
+      message: 'success',
+      data: {...response.data}
     })
   }
 }

@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose');
-const { OTPSTATUS } = require('../enums/index');
+const { OTPSTATUS } = require('../../enums');
 
 const UserSchema = new Schema({
   email: { type: String, required: true, trim: true, unique: true},
