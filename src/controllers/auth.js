@@ -4,11 +4,10 @@ class AuthController {
   static async signup(req, res) {
     const { email, password } = req.body;
     const response = await intiateSignup({ email, password})
-    console.log('here', response.data, response)
-    res.json({
-      message: 'success',
-      data: {...response.data}
-    })
+    // res.json({
+    //   message: 'success',
+    //   data: {...response.data}
+    // })
   }
 }
 
