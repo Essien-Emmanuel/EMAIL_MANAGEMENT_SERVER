@@ -11,5 +11,9 @@ module.exports = {
   },
   database: {
     uri: process.env.DB_URL.trim()
+  },
+  mail: {
+    mailTrapToken: process.env.MAILTRAP_TOKEN,
+    mailTrapEndpoint: process.env.MAILTRAP_ENDPOINT
   }
 }
