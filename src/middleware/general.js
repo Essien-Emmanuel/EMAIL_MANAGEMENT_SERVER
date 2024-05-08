@@ -26,6 +26,7 @@ class GeneralMiddleware {
       name: 'InternalServerError',
       timestamp: Date.now(),
       message: 'Something went wrong, Please contact our support team!',
+      ...(!appEnv.includes(env) ? {} : { stack: error.stack} )
     });
   }
 
