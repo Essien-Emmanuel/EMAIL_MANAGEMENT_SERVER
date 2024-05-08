@@ -1,8 +1,8 @@
-const MailTrapSender = require("./adaptee/mailTrap");
+const MailTrapAdapter = require("./adaptee/mailTrap");
 
 class EmailRepository {
 	async send(email) {
-		return MailTrapSender.send(email);
+		return MailTrapAdapter.send(email);
 	}
 }
 
