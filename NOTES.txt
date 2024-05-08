@@ -1,0 +1,8 @@
+Email template
+Header: Includes sender's logo, company name, and contact information.
+Subject Line: A concise summary of the email's content.
+Greeting: Salutation addressing the recipient.
+Body Content: Main message or information.
+Call to Action (CTA): Prompts recipients to take a specific action.
+Footer: Legal disclaimers, unsubscribe links, and contact details.
+Personalization Variables: Placeholders for dynamic personalization, such as recipient's name.  
