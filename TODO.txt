@@ -6,3 +6,13 @@ Email management server
 - App will support multi email service provider channels such as MailChimp , MailGun, MailTrap, ....
 - Users can select and update the credentials of the email service provider they which to be using to send thier email
 - Users can send emails using the template
+
+next endpoints
+- delete template
+- update template
+- get template
+- create credential
+- get credential
+- update credential
+- delete credential
+- post email [using any service provider, send email using template] 
