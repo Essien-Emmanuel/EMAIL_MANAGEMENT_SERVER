@@ -1,4 +1,4 @@
-const User = require('../../database/repositories/user.repo');
+const {User} = require('../../database/repositories/user.repo');
 
 class AuthService {
   static async createUser(userDto) {

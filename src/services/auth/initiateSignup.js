@@ -1,4 +1,4 @@
-const User = require('../../database/repositories/user.repo');
+const {User} = require('../../database/repositories/user.repo');
 const UserService = require('../auth/index');
 const OTPValidator = require('../../utils/otpValidator');
 const { hashString, generateJwt } = require('../../utils/index');
