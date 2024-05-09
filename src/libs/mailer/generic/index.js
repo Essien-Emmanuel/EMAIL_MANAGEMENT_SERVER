@@ -25,14 +25,10 @@ class Email {
 }
 
 class EmailTemplate {
-  constructor(header = null, subjectLine = null, greeting = null, bodyContent = null, callToAction = null, footer = null, personalizedVariables = null) {
-    this.header = header;
-    this.subjectLine = subjectLine;
+  constructor(subject = null, greeting = null, message = null) {
+    this.subject = subject;
     this.greeting = greeting;
-    this.bodyContent = bodyContent,
-    this.callToAction = callToAction;
-    this.footer = footer;
-    this.personalizedVariables = personalizedVariables;
+    this.message = message;
   }
   
 }

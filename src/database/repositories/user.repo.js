@@ -1,25 +1,15 @@
 const User = require('../models/User');
+const { GenericRepo } = require('./generic/index');
 
-class UserRepo {
-  static getById(id) {
-    return User.findById(id);
+class UserRepo extends GenericRepo {
+  constructor() {
+    super(User);
   }
 
-  static getByEmail(email) {
-    return User.findOne({ email});
+  getByEmail(email) {
+    return this.model.findOne({ email});
   }
 
-  static create(userData) {
-    return User.create(userData)
-  }
-
-  static update(filter, updateData) {
-    return User.updateOne(filter, updateData);
-  }
-
-  static delete(id) {
-    return User.deleteOne({ id })
-  }
 }
 
-module.exports = UserRepo;
+exports.User = new UserRepo();
