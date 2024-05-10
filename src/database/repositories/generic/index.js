@@ -16,9 +16,6 @@ class GenericRepo {
   }
 
   async delete(_id) {
-    console.log('here')
-    console.log('id d',  _id)
-    console.log('here1')
     return this.model.deleteOne({_id});
   }
 }

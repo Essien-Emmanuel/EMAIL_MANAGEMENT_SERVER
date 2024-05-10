@@ -3,7 +3,7 @@ function defineResponse(data) {
     status: 'success',
     messaage: data.message,
     statusCode: data.statusCode || 200,
-    data: { ...data }
+    data: { ...data.data }
   }
 }
 
