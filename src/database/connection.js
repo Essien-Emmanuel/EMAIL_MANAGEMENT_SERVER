@@ -27,4 +27,4 @@ class Database {
   }
 }
 
-module.exports = Database;
+exports.Database = Database;

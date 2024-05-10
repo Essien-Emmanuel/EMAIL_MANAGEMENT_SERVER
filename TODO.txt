@@ -8,11 +8,11 @@ Email management server
 - Users can send emails using the template
 
 next endpoints
-- delete template
-- update template
-- get template
 - create credential
 - get credential
 - update credential
 - delete credential
-- post email [using any service provider, send email using template] 
+- post email [using any service provider, send email using template]
+
+next functionality
+- create a resource sharing class, to handle sendiing of resources to the client with hidden fields

@@ -9,4 +9,4 @@ const UserSchema = new Schema({
   otp_expiry_date: { type: Date}
 }, {timestamps: true });
 
-module.exports = model('User', UserSchema)
+exports.User = model('User', UserSchema)
