@@ -15,7 +15,9 @@ exports.generateEmailTemplate = ({ subject, greeting, message}) => {
         </body>
         </html>
     `;
+
   const template = handlebars.compile(templateString);
-  const generatedTemplate =  template({subject, greeting, message})
+  const generatedTemplate =  template({subject, greeting, message});
+  
   return generatedTemplate
 }

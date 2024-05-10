@@ -1,4 +1,4 @@
-const Template = require('../models/Template');
+const { Template } = require('../models/Template');
 const { GenericRepo } = require('./generic/index');
 
 class TemplateRepo extends GenericRepo {

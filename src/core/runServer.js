@@ -3,7 +3,7 @@ const Config = require('../config');
 
 const { port } = Config.app;
 
-module.exports = () => {
+exports.runServer = () => {
   app.listen(port, () => {
     console.log('- App Environment:: ', port);
   }).on('error', (error) => {

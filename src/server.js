@@ -1,5 +1,5 @@
-const runServer = require('./core/runServer');
-const connectToDb = require('./database/connection');
+const { runServer } = require('./core/runServer');
+const { Database } = require('./database/connection');
 
-connectToDb().then(runServer())
-
+Database.getInstance()
+.then(runServer())

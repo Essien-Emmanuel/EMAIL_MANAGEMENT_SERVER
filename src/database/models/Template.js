@@ -12,4 +12,4 @@ const TemplateSchema = new Schema({
   }
 }, { timestamps: true });
 
-module.exports = model('Template', TemplateSchema);
+exports.Template = model('Template', TemplateSchema);

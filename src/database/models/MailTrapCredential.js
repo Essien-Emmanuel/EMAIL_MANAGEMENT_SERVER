@@ -6,4 +6,4 @@ const MailTrapCredentailSchema = new Schema({
   user: { type: String, required: true, ref: 'User'}
 }, { timestamps: true});
 
-module.exports = model('MailTrapCredential', MailTrapCredentailSchema);
+exports.MailTrapCredentail = model('MailTrapCredential', MailTrapCredentailSchema);
