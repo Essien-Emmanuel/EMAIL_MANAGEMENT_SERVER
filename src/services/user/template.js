@@ -18,6 +18,7 @@ class TemplateService {
     const generatedTemplate = generateEmailTemplate({subject, greeting, message});
 
     return {
+      statusCode: 201,
       message: 'Template created successfully!',
       data: { createdTemplate, generatedTemplate }
     }
@@ -48,7 +49,19 @@ class TemplateService {
       message: 'Template variables updated successfully!',
       data: { updatedTemplate }
     }
+  }
 
+  static async deleteTemplate(id) {
+    const template = await Template.getById(id);
+    if (!template) throw new NotFoundError('Template Not Found!');
+
+    const deletedTemplate = await Template.delete(id);
+    if (deletedTemplate.deletedCount !== 1) throw new InternalServerError('Unable to delete template!');
+
+    return {
+      message: 'Template deleted successfully!',
+      data: { deletedTemplateId: id }
+    }
   }
 }
 

@@ -15,7 +15,10 @@ class GenericRepo {
     return this.model.updateOne(filter, updateData);
   }
 
-  delete(_id) {
+  async delete(_id) {
+    console.log('here')
+    console.log('id d',  _id)
+    console.log('here1')
     return this.model.deleteOne({_id});
   }
 }
