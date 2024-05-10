@@ -3,20 +3,20 @@ class GenericRepo {
     this.model = model;
   }
 
-  getById(id) {
-    return this.model.findById(id);
+  getById(_id) {
+    return this.model.findById(_id);
   }
 
   create(modelData) {
     return this.model.create(modelData);
   }
 
-  update(filter, updateData) {
+  async update(filter, updateData) {
     return this.model.updateOne(filter, updateData);
   }
 
-  delete(id) {
-    return this.model.deleteOne({id});
+  delete(_id) {
+    return this.model.deleteOne({_id});
   }
 }
 

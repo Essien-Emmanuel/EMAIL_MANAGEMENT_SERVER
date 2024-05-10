@@ -5,8 +5,8 @@ class TemplateRepo extends GenericRepo {
   constructor() {
     super(Template)
   }
-  getById(id) {
-    return this.model.findById(id).populate('user').exec()
+  getById(_id) {
+    return this.model.findById(_id).populate('user').exec()
   }
 
   getBySlug(slug) {

@@ -32,6 +32,24 @@ class TemplateService {
       data: { emailTemplate: template }
     }
   }
+
+  static async updateTemplate(filter, updateDto) {
+    const { templateId: _id} = filter;
+
+    const template = await Template.getById(_id);
+    if (!template) throw new NotFoundError('Template Not Found!');
+
+    let updatedTemplate = await Template.update({ _id }, updateDto);
+    if (updatedTemplate.modifiedCount !== 1) throw new InternalServerError('Unable to update template');
+    
+    updatedTemplate = await Template.getById(_id);
+
+    return {
+      message: 'Template variables updated successfully!',
+      data: { updatedTemplate }
+    }
+
+  }
 }
 
 exports.TemplateService = TemplateService;

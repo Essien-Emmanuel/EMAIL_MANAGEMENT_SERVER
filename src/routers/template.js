@@ -2,7 +2,7 @@ const router = require('express').Router();
 const defineController = require('../core/defineController');
 const { TemplateService } = require('../services/user/template');
 
-const { createTemplate, getTemplate } = TemplateService;
+const { createTemplate, getTemplate, updateTemplate } = TemplateService;
 
 router.get('/get', defineController({
   async controller(req) {
@@ -19,5 +19,14 @@ router.post('/create', defineController({
     req.return(response)
   }
 }));
+
+router.put('/update', defineController({
+  async controller(req) {
+    const templateId = req.query.templateId;
+    const updateData = req.body;
+    const response = await updateTemplate({ templateId }, updateData);
+    req.return(response);
+  }
+}))
 
 exports.router = router;
