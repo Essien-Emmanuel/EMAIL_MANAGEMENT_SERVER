@@ -22,6 +22,16 @@ class TemplateService {
       data: { createdTemplate, generatedTemplate }
     }
   }
+
+  static async getTemplate(id) {
+    const template = await Template.getById(id);
+    if (!template) throw new NotFoundError('Template not found!');
+
+    return {
+      message: 'Fetched template successfully!',
+      data: { emailTemplate: template }
+    }
+  }
 }
 
 exports.TemplateService = TemplateService;
