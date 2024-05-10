@@ -18,8 +18,49 @@ class TemplateService {
     const generatedTemplate = generateEmailTemplate({subject, greeting, message});
 
     return {
+      statusCode: 201,
       message: 'Template created successfully!',
       data: { createdTemplate, generatedTemplate }
+    }
+  }
+
+  static async getTemplate(id) {
+    const template = await Template.getById(id);
+    if (!template) throw new NotFoundError('Template not found!');
+
+    return {
+      message: 'Fetched template successfully!',
+      data: { emailTemplate: template }
+    }
+  }
+
+  static async updateTemplate(filter, updateDto) {
+    const { templateId: _id} = filter;
+
+    const template = await Template.getById(_id);
+    if (!template) throw new NotFoundError('Template Not Found!');
+
+    let updatedTemplate = await Template.update({ _id }, updateDto);
+    if (updatedTemplate.modifiedCount !== 1) throw new InternalServerError('Unable to update template');
+    
+    updatedTemplate = await Template.getById(_id);
+
+    return {
+      message: 'Template variables updated successfully!',
+      data: { updatedTemplate }
+    }
+  }
+
+  static async deleteTemplate(id) {
+    const template = await Template.getById(id);
+    if (!template) throw new NotFoundError('Template Not Found!');
+
+    const deletedTemplate = await Template.delete(id);
+    if (deletedTemplate.deletedCount !== 1) throw new InternalServerError('Unable to delete template!');
+
+    return {
+      message: 'Template deleted successfully!',
+      data: { deletedTemplateId: id }
     }
   }
 }

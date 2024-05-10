@@ -6,10 +6,12 @@ const appEnv =  Object.values(AppEnv)
 
 class GeneralMiddleware {
   static ErrorHandler(error, _req, res, _next)  {
+    if (res.headerSent) return;
+
     if (!appEnv.includes(env)) console.log(error)
 
     if ('getType' in error) {
-      return res.status(error.code).json({
+      return res.status(error.statusCode).json({
         status: 'error',
         code: error.statusCode,
         name: error.name,
