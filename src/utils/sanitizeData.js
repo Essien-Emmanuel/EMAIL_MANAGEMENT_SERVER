@@ -1,6 +1,5 @@
-exports.sanitizeDataToJson = (data, fieldsToRemove = ['otp', 'password']) => {
+exports.sanitizeData = (data, fieldsToRemove = ['otp', 'password', '__v']) => {
   const sanitizedData = data;
-  console.log('sa ', sanitizedData)
   
   if (typeof sanitizedData !== 'object' || sanitizedData === null) return sanitizedData;
 
@@ -9,24 +8,21 @@ exports.sanitizeDataToJson = (data, fieldsToRemove = ['otp', 'password']) => {
       delete sanitizedData[field]
     }
     else {
-      sanitizedData[field] = this.sanitizeDataToJson(sanitizedData[field], fieldsToRemove);
+      sanitizedData[field] = this.sanitizeData(sanitizedData[field], fieldsToRemove);
     }
   }
 
   return sanitizedData;
 }
 
-// exports.sanitizeDataToJson = (d, fieldsToRemove) => {
-//   const data = {...d}
-// 	if (typeof data !== 'object' || data === null) return data;
-
-// 	for (const field in data) {
-// 		if (fieldsToRemove.includes(field)) {
-// 			delete data[field]
-// 		}
-// 		else {
-// 			data[field] = this.sanitizeDataToJson(data[field], field)
-// 		}
-// 	}
-// 	return data;
-// }
+exports.cleanData = (inputObj, modelInterface) => {
+	const fields = Object.keys(inputObj);
+	const data = {};
+	for (const field of fields) {
+		const isField = modelInterface.hasOwnProperty(field);
+		if (isField) {
+      data[field] = inputObj[field]
+    }
+	}
+	return data
+}

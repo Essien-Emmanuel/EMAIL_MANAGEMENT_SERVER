@@ -1,9 +1,8 @@
-const { sanitizeDataToJson } = require('../utils/sanitizeData');
+const {sanitizeData}  = require('../utils/sanitizeData');
 
 function defineResponse(data) {
   const fieldsToRemove = ['otp', 'password'];
-  const sanitizedData = sanitizeDataToJson({ ...data.data }, fieldsToRemove);
-  
+  const sanitizedData = sanitizeData({ ...data.data }, fieldsToRemove);
   return {
     status: 'success',
     messaage: data.message,

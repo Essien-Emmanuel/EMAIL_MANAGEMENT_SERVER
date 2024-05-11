@@ -1,7 +1,10 @@
 const {User} = require("../../database/repositories/user.repo");
+const { IUser } = require('../../database/models/User')
 const { NotFoundError, ValidationError } = require('../../libs/exceptions/index');
 const { compareStrings, generateJwt } = require('../../utils/index');
 const { TokenFlag } = require('../../enums');
+const { cleanData } = require('../../utils/sanitizeData')
+
 
 module.exports = async (userLoginFields) => {
 	const { email, password } = userLoginFields;
@@ -18,12 +21,11 @@ module.exports = async (userLoginFields) => {
 		timestamp: Date.now(),
 	});
 
-	return {
+	const cleanedUserData = cleanData({...user._doc}, IUser)
+		return {
 		message: "User Logged in Successfully",
 		data: {
-			...user._doc,
-			password: "hidden",
-			otp: 'hidden',
+			...cleanedUserData,
 			token: {
 				flag: TokenFlag.AUTH,
 				value: token,
