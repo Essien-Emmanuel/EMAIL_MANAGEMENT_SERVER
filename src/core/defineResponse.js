@@ -7,7 +7,7 @@ function defineResponse(data) {
     status: 'success',
     messaage: data.message,
     statusCode: data.statusCode || 200,
-    data: sanitizedData 
+    data:   sanitizedData 
   }
 }
 

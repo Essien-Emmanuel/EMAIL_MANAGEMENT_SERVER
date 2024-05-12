@@ -22,7 +22,7 @@ module.exports = async (userLoginFields) => {
 	});
 
 	const cleanedUserData = cleanData({...user._doc}, IUser)
-		return {
+			return {
 		message: "User Logged in Successfully",
 		data: {
 			...cleanedUserData,
