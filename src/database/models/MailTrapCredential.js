@@ -1,6 +1,7 @@
 const { Schema, model } = require('mongoose');
 
-exports.IMailTrapCredentialSchema = {
+exports.IMailTrapCredential = {
+  _id: 'string',
   token: 'string',
   endpoint: 'string',
   user: 'object',
@@ -16,4 +17,4 @@ const MailTrapCredentailSchema = new Schema({
   mailServiceProvider: { type: String, required: true, ref: 'MailServiceProvider'}
 }, { timestamps: true});
 
-exports.MailTrapCredentail = model('MailTrapCredential', MailTrapCredentailSchema);
+exports.MailTrapCredential = model('MailTrapCredential', MailTrapCredentailSchema);

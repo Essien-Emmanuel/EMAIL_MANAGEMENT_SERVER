@@ -26,7 +26,6 @@ exports.cleanData = (inputObj, modelInterface) => {
 	for (const field of fields) {
 		const isField = modelInterface.hasOwnProperty(field);
 		if (isField) {
-      console.log('is ',field)
       data[field] = inputObj[field]
     }
 	}
