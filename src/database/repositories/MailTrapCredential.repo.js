@@ -1,13 +1,15 @@
 const { MailTrapCredential } = require('../models/MailTrapCredential');
 const { GenericRepo } = require('./generic/index');
 
-// class MailTrapCredentailRepo extends GenericRepo {
-//   constructor(model) {
-//     super(model);
-//   }
-//   get
-// }
+class MailTrapCredentailRepo extends GenericRepo {
+  constructor(model) {
+    super(model);
+  }
+  getbyUserIdAndServiceProvider({userId, serviceProviderId}) {
+    return this.model.findOne({ user: userId, mailServiceProvider: serviceProviderId})
+  }
+}
 
-const MailTrapCredentialRepo = new GenericRepo(MailTrapCredential);
+const mailTrapCredential = new MailTrapCredentailRepo(MailTrapCredential)
 
-exports.MailTrapCredential = MailTrapCredentialRepo;
+exports.MailTrapCredential = mailTrapCredential;

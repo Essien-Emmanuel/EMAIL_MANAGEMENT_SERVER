@@ -4,6 +4,7 @@ exports.IMailTrapCredentialSchema = {
   token: 'string',
   endpoint: 'string',
   user: 'object',
+  mailServiceProvider: 'object',
   createdAt: 'string',
   updatedAt: 'string,'
 }
