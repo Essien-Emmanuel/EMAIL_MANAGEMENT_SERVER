@@ -1,11 +1,19 @@
-const MailTrapAdapter = require("./adaptee/mailTrap");
+const { MailTrapAdapter } = require("./adaptee/mailTrap");
 
-class EmailRepository {
-	async send(email) {
-		return MailTrapAdapter.send(email);
+class MailFactory {
+	constructor(config) {
+		this.config = config
+	}
+
+	static create(slug = 'mail-trap') {
+		switch (slug) {
+			case 'mail-trap': //remove mailtrap case later and leave as default. it doesn't break anything
+				return MailTrapAdapter(this.config)	
+			default:
+				console.log('Default Mail Service:: Mailtrap ✈');
+				return MailTrapAdapter(this.config);
+		}
 	}
 }
 
-const emailRepo = new EmailRepository();
-
-module.exports = emailRepo;
+exports.MailFactory = MailFactory;

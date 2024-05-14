@@ -31,3 +31,7 @@ exports.hashString = (string) => {
 exports.compareStrings = (string, hashedString) => {
 	return bcrypt.compare(string, hashedString);
 }
+
+exports.extractPlaceholders = (text, regex) => {
+	return [...text.matchAll(regex)].map(match => match[1]);
+}

@@ -1,7 +1,7 @@
 const {User} = require('../../database/repositories/user.repo');
 const {Template} = require('../../database/repositories/template.repo');
 const { NotFoundError, InternalServerError } = require('../../libs/exceptions');
-const { generateEmailTemplate } = require('../../libs/mailer/template');
+const { generateEmailHTMLPart } = require('../../libs/mailer/utils');
 
 class TemplateService {
   static async createTemplate(userId, templateDto) {
@@ -15,12 +15,13 @@ class TemplateService {
 
     const createdTemplate = await Template.create({...templateDto, user: userId});
     if (!createdTemplate) throw new InternalServerError('Unable to create Template');
-    const generatedTemplate = generateEmailTemplate({subject, greeting, message});
+
+    // const generatedTemplate = generateEmailTemplate({subject, greeting, message});
 
     return {
       statusCode: 201,
       message: 'Template created successfully!',
-      data: { createdTemplate, generatedTemplate }
+      data: { createdTemplate, }
     }
   }
 
