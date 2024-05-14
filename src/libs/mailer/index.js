@@ -5,13 +5,13 @@ class MailFactory {
 		this.config = config
 	}
 
-	static create(slug = 'mail-trap') {
+	create(slug = 'mail-trap') {
 		switch (slug) {
 			case 'mail-trap': //remove mailtrap case later and leave as default. it doesn't break anything
-				return MailTrapAdapter(this.config)	
+				return new MailTrapAdapter(this.config)	
 			default:
 				console.log('Default Mail Service:: Mailtrap ✈');
-				return MailTrapAdapter(this.config);
+				return new MailTrapAdapter(this.config);
 		}
 	}
 }

@@ -1,6 +1,4 @@
-function isObject(data) {
-  return  typeof data === 'object'
-}
+const { isObject } = require('./index');
 
 exports.sanitizeData = (data, fieldsToRemove = ['otp', 'password']) => {
   const sanitizedData = {...data };
