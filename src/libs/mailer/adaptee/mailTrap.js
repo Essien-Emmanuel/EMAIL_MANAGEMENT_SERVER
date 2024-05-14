@@ -1,6 +1,6 @@
+const { MailtrapClient } = require("mailtrap");
 const { EmailAdapter } = require("../generic/index");
 
-const { MailtrapClient } = require("mailtrap");
 const Config = require('../../../config');
 
 const { mailTrapEndpoint, mailTrapToken } = Config.mail
@@ -41,6 +41,9 @@ class MailTrapAdapter extends EmailAdapter {
 	}
 }
 
-const mailTrapAdapter = new MailTrapAdapter({ endpoint: mailTrapEndpoint, token: mailTrapToken });
+const APIMailer = new MailTrapAdapter({ endpoint: mailTrapEndpoint, token: mailTrapToken });
 
-module.exports = mailTrapAdapter;
+module.exports = {
+	APIMailer,
+	MailTrapAdapter
+}
