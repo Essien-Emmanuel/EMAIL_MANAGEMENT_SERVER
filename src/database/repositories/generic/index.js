@@ -7,8 +7,13 @@ class GenericRepo {
     return this.model.findById(_id);
   }
 
-  create(modelData) {
-    return this.model.create(modelData);
+  create(payload) {
+    try {
+      const record = this.model.create(payload);
+      return record
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   async update(filter, updateData) {
