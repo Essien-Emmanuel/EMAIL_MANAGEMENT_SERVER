@@ -1,3 +1,4 @@
+const { MailServiceProvider } = require('../../database/repositories/mailServiceProvider.repo');
 const { ResourceConflictError, InternalServerError } = require('../../libs/exceptions/index');
 const { cleanData } = require('../../utils/sanitizeData');
 const { GenericService } = require('./index');
@@ -8,17 +9,24 @@ class GenericConfigService extends GenericService {
   }
 
   async createRecord(payload) {
-    const record = await this.repository.getBySlug(payload.slug);
+    const { userId, serviceProviderId} = payload;
+
+    const record = await this.repository.getbyUserIdAndServiceProvider({userId, serviceProviderId});
+
     if (record)  throw new ResourceConflictError(`${this.tableName} Already Exist!`);
 
-    const createdRecord = await this.repository.create(payload);
+    const createdRecord = await this.repository.create({
+      ...payload, 
+      user: userId, 
+      mailServiceProvider: serviceProviderId 
+    });
     if (!createdRecord) throw new InternalServerError(`Unable to create ${this.tableName}!`);
     
-    const cleanedMSProviderData = cleanData(createdRecord._doc, this.$interface)
+    const cleanedData = cleanData(createdRecord._doc, this.$interface)
     return {
       statusCode: 201,
-      message: 'Created Mail Service Provider Successfully',
-      data: cleanedMSProviderData
+      message: `Created ${this.tableName} Successfully`,
+      data: cleanedData
     }
   }
 }

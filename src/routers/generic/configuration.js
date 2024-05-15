@@ -17,7 +17,7 @@ class GenericConfigRouter {
     }));
   
     this.router.post('/create', defineController({
-      async controller(req) {
+      controller: async (req) => {
         const response = await this.service.createRecord({
           userId: req.query.userId, 
           serviceProviderId: req.query.serviceProviderId,
@@ -42,7 +42,7 @@ class GenericConfigRouter {
   }
 
   getRouter() {
-    return this.router()
+    return this.router
   }
 }
 

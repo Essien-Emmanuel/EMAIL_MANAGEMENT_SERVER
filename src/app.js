@@ -16,4 +16,9 @@ app.use(APIBASE, routes);
 app.use(ErrorHandler);
 app.use(NotFoundError);
 
+async function seedDb() {
+  //test code
+}
+seedDb();
+
 module.exports = app;
