@@ -10,7 +10,7 @@ class GenericConfigRouter {
 
   initializeRoutes() {
     this.router.get('/get', defineController({
-      async controller(req) {
+      controller: async (req) => {
         const response = await this.service.getRecord(req.query.credentialId);
         req.return(response);
       }
@@ -27,14 +27,14 @@ class GenericConfigRouter {
     }));
   
     this.router.put('/update', defineController({
-      async controller(req) {
-        const response = await this.service.updateRecord({_id: req.query.credentialId}, { ...req.body });
+      controller: async (req) => {
+        const response = await this.service.updateRecord({_id: req.query.configurationId}, { ...req.body });
         req.return(response);
       }
     }));
   
     this.router.delete('/delete', defineController({
-      async controller(req) {
+      controller: async (req) => {
         const response = await this.service.deleteRecord(req.query.credentialId);
         req.return(response);
       }
