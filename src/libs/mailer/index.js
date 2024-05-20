@@ -6,7 +6,7 @@ class MailFactory {
 		this.config = config
 	}
 
-	create(slug = 'mail-trap') {
+	getSender(slug = 'mail-trap') {
 		switch (slug) {
 			case 'mail-trap': //remove mailtrap case later and leave as default. it doesn't break anything
 				return new MailTrapAdapter(this.config)	
