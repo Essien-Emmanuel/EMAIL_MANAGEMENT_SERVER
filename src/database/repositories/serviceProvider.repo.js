@@ -1,7 +1,7 @@
-const { MailServiceProviderModel } = require('../models/MailServiceProvider');
+const { ServiceProviderModel } = require('../models/ServiceProvider');
 const { GenericRepo } = require('./generic/index');
 
-class MailServiceProviderRepo extends GenericRepo {
+class ServiceProviderRepo extends GenericRepo {
   constructor(model) {
     super(model)
   }
@@ -9,12 +9,8 @@ class MailServiceProviderRepo extends GenericRepo {
   getByName(name) {
     return this.model.findOne({ name });
   }
-
-  getBySlug(slug) {
-    return this.model.findOne({ slug });
-  }
 }
 
-const MailServiceProvider = new MailServiceProviderRepo(MailServiceProviderModel);
+const ServiceProvider = new ServiceProviderRepo(ServiceProviderModel);
 
-exports.MailServiceProvider = MailServiceProvider;
+exports.ServiceProvider = ServiceProvider;

@@ -1,45 +1,44 @@
 const { ProviderConfig } = require('../../database/repositories/providerConfig.repo');
-const {IMailTrapCredential} = require('../../database/models/MailTrapCredential')
-const { cleanData} = require('../../utils/sanitizeData');
 const { NotFoundError, ResourceConflictError, InternalServerError } = require('../../libs/exceptions/index');
 
-class MailTrapConfigService {
-  static async createConfig(providerConfigDto) {
+class ProviderConfigService {
+  static async createProviderConfig(providerConfigDto) {
     const { userId, serviceProviderId} = providerConfigDto;
     
     const providerConfig = await ProviderConfig.getbyUserIdAndServiceProvider({userId, serviceProviderId});
-    if (providerConfig) throw new ResourceConflictError('Mailtrap Credentials already exist');
+    console.log('donfig ', providerConfig)
+    if (providerConfig === null) throw new ResourceConflictError('Provider Configuration already exist');
     
     const createdProviderConfig = await ProviderConfig.create({
-      ...credentialDto, 
+      ...providerConfigDto, 
       user: userId, 
-      mailServiceProvider: serviceProviderId
+      serviceProvider: serviceProviderId
     });
     
-    if (!createdProviderConfig) throw new InternalServerError('Unable to save Mailtrap Provider Configuration');
+    if (!createdProviderConfig) throw new InternalServerError('Unable to save Provider Configuration');
     
     return {
       statusCode: 201,
-      message: 'Saved Mailtrap Credentials Successfully!',
+      message: 'Saved Provider Configuration Successfully!',
       data: { createdProviderConfig }
     }
   }
 
-  static async getConfig(_id) {
+  static async getProviderConfig(_id) {
     const providerConfig = await ProviderConfig.getById(_id);
-    if (!providerConfig) throw new NotFoundError('Mailtrap provider Configuration Not Found!');
+    if (!providerConfig) throw new NotFoundError('Provider Configuration Not Found!');
 
     return {
-      message: "Fetched Mailtrap Provider Configuration Successfully!",
+      message: "Fetched Provider Configuration Successfully!",
       data: { ProviderConfig }
     }
   }  
 
-  static async updateCredential(filter, updateDto) {
+  static async updateProviderConfig(filter, updateDto) {
     const {_id} = filter;
 
     const providerConfig = await ProviderConfig.getById(_id);
-    if (!providerConfig) throw new NotFoundError('Mailtrap Provider Configuration Not Found!');
+    if (!providerConfig) throw new NotFoundError('Provider Configuration Not Found!');
     
     const updatedProviderConfig = await ProviderConfig.update({_id}, updateDto);
     if (updatedProviderConfig.modifiedCount !== 1) throw new InternalServerError('Unable to update Provider Confuration field field');
@@ -47,12 +46,12 @@ class MailTrapConfigService {
     const fetchProviderConfiguration = await ProviderConfig.getById(_id);
 
     return {
-      message: 'Updated Mailtrap Credentials Successfully!',
+      message: 'Updated Provider Configurations Successfully!',
       data: { updatedConfig: fetchProviderConfiguration }
     }
   }
 
-  static async deleteCredential(_id) {
+  static async deleteProviderConfig(_id) {
     const providerConfig = await ProviderConfig.getById(_id);
     if (!providerConfig) throw new NotFoundError('Provider Configuration Not Found!');
 
@@ -66,4 +65,4 @@ class MailTrapConfigService {
   }
 }
 
-exports.MailTrapCredentialService = MailTrapCredentialService;
+exports.ProviderConfigService = ProviderConfigService;
