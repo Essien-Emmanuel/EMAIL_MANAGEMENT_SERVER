@@ -8,12 +8,8 @@ class GenericRepo {
   }
 
   create(payload) {
-    try {
-      const record = this.model.create(payload);
-      return record
-    } catch (error) {
-      console.log(error)
-    }
+    console.log(payload)
+    return this.model.create(payload);
   }
 
   async update(filter, updateData) {

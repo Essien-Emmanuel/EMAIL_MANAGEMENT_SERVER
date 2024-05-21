@@ -6,11 +6,11 @@ class MailFactory {
 		this.config = config
 	}
 
-	create(slug = 'mail-trap') {
-		switch (slug) {
-			case 'mail-trap': //remove mailtrap case later and leave as default. it doesn't break anything
+	getSender(name = 'mailtrap') {
+		switch (name) {
+			case 'mailtrap': //line optional. can remove mailtrap case later and leave as default. it doesn't break anything
 				return new MailTrapAdapter(this.config)	
-			case 'mail-jet':
+			case 'mailjet':
 				return new MailjetAdapter(this.config);
 			default:
 				console.log('Default Mail Service:: Mailtrap ✈');

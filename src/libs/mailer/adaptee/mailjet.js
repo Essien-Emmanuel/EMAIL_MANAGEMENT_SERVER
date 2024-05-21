@@ -10,7 +10,7 @@ class MailjetAdapter extends EmailAdapter {
 	async send(email) {
     try {
       const { to: recipient, subject, htmlPart,  text } = email;
-      const result = await mailjet.post("send", { version: "v3.1" }).request({
+      const result = await this.mailjet.post("send", { version: "v3.1" }).request({
         Messages: [
           {
             From: {
@@ -29,8 +29,7 @@ class MailjetAdapter extends EmailAdapter {
           },
         ],
       });
-
-      if (!result.response.status !== 200) return { success: false };
+      if (result.response.status !== 200) return { success: false };
 
 			return { success: true };
 

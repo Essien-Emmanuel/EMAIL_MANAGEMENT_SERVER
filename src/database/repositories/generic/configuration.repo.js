@@ -5,7 +5,7 @@ class GeneralConfigRepo extends GenericRepo {
     super(model);
   }
   getbyUserIdAndServiceProvider({userId, serviceProviderId}) {
-    return this.model.findOne({ user: userId, mailServiceProvider: serviceProviderId})
+    return this.model.findOne({ user: userId, serviceProvider: serviceProviderId})
   }
 }
 

@@ -9,7 +9,7 @@ const generateEmailHTMLPart  = async (templateString, { subject, greeting, messa
   return generatedHTMLPart
 }
 
-const sendMultipleEmail = async ({recipients, template, variables, MSProvider,  containsHtmlPart = true, config}) => {
+const sendMultipleEmail = async ({recipients, template, variables, serviceProvider,  containsHtmlPart = true, config}) => {
   let successCount = 0
   const mailedRecipients = []
 
@@ -21,7 +21,7 @@ const sendMultipleEmail = async ({recipients, template, variables, MSProvider,  
     const text = replacePlaceholders(template.text, variables);
     const subject = template.subject;
   
-    const Mail = new MailFactory(config).create(MSProvider.slug);
+    const Mail = new MailFactory(config).getSender(serviceProvider.name);
     const mailResponse = await Mail.send({ to: recipient, subject, text, htmlPart});
     
     if (mailResponse.success) {

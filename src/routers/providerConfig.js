@@ -1,19 +1,19 @@
 const router = require('express').Router();
 const defineController = require('../core/defineController');
-const { MailTrapCredentialService } = require('../services/user/mailTrapCrendential');
+const { ProviderConfigService } = require('../services/providerConfig/index');
 
-const { getCredential, createCredential, updateCredential, deleteCredential } = MailTrapCredentialService;
+const { getProviderConfig, createProviderConfig, updateProviderConfig, deleteProviderConfig } = ProviderConfigService;
 
 router.get('/get', defineController({
   async controller(req) {
-    const response = await getCredential(req.query.credentialId);
+    const response = await getProviderConfig(req.query.providerConfigId);
     req.return(response);
   }
 }));
 
 router.post('/create', defineController({
   async controller(req) {
-    const response = await createCredential({
+    const response = await createProviderConfig({
       userId: req.query.userId, 
       serviceProviderId: req.query.serviceProviderId,
       ...req.body});
@@ -23,16 +23,16 @@ router.post('/create', defineController({
 
 router.put('/update', defineController({
   async controller(req) {
-    const response = await updateCredential({_id: req.query.credentialId}, { ...req.body });
+    const response = await updateProviderConfig({_id: req.query.providerConfigId}, { ...req.body });
     req.return(response);
   }
 }));
 
 router.delete('/delete', defineController({
   async controller(req) {
-    const response = await deleteCredential(req.query.credentialId);
+    const response = await deleteProviderConfig(req.query.providerConfigId);
     req.return(response);
   }
 }));
 
-exports.mailTrapCredentialRoutes = router;
+exports.providerConfigRoutes = router;

@@ -1,10 +1,10 @@
 const router = require('express').Router();
 const defineController = require('../core/defineController');
-const { MailService } = require('../services/user/mail');
+const { MailerService  } = require('../services/user/mailer');
 
-const { sendMail } = MailService;
+const { sendMail } = MailerService;
 
-router.post('/mail', defineController({
+router.post('/send', defineController({
   async controller(req) {
     const { recipients, variables, userId, templateId, serviceProviderId } = req.body;
     const response = await sendMail({ userId, recipients, variables, templateId, serviceProviderId });
@@ -12,4 +12,4 @@ router.post('/mail', defineController({
   }
 }));
 
-exports.mailRoutes = router;
+exports.mailerRoutes = router;
