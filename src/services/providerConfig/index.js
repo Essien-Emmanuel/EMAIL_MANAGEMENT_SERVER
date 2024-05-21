@@ -6,8 +6,7 @@ class ProviderConfigService {
     const { userId, serviceProviderId} = providerConfigDto;
     
     const providerConfig = await ProviderConfig.getbyUserIdAndServiceProvider({userId, serviceProviderId});
-    console.log('donfig ', providerConfig)
-    if (providerConfig === null) throw new ResourceConflictError('Provider Configuration already exist');
+    if (providerConfig) throw new ResourceConflictError('Provider Configuration already exist');
     
     const createdProviderConfig = await ProviderConfig.create({
       ...providerConfigDto, 
