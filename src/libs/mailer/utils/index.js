@@ -23,7 +23,6 @@ const sendMultipleEmail = async ({recipients, template, variables, serviceProvid
   
     const Mail = new MailFactory(config).getSender(serviceProvider.name);
     const mailResponse = await Mail.send({ to: recipient, subject, text, htmlPart});
-    console.log('response ', mailResponse)
     
     if (mailResponse.success) {
       ++successCount

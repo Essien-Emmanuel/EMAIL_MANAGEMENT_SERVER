@@ -31,7 +31,7 @@ class MailerService {
 
     const isValidVariables = checkValidVariables(variables, template.personalizedVariables);
     if (isValidVariables) throw new ValidationError('Varables is Invalid!');
-
+    
     const providerConfig = await ProviderConfig.getbyUserIdAndServiceProvider({
       userId,
       serviceProviderId

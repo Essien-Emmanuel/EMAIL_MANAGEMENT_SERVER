@@ -29,7 +29,6 @@ class MailjetAdapter extends EmailAdapter {
           },
         ],
       });
-      console.log('status ', result.response.status)
       if (result.response.status !== 200) return { success: false };
 
 			return { success: true };

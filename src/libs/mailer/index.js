@@ -8,7 +8,7 @@ class MailFactory {
 
 	getSender(name = 'mailtrap') {
 		switch (name) {
-			case 'mailtrap': //remove mailtrap case later and leave as default. it doesn't break anything
+			case 'mailtrap': //line optional. can remove mailtrap case later and leave as default. it doesn't break anything
 				return new MailTrapAdapter(this.config)	
 			case 'mailjet':
 				return new MailjetAdapter(this.config);
