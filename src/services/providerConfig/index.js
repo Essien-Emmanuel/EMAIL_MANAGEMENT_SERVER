@@ -35,7 +35,7 @@ class ProviderConfigService {
 
   static async updateProviderConfig(filter, updateDto) {
     const {_id} = filter;
-
+    console.log('here  in service', _id)
     const providerConfig = await ProviderConfig.getById(_id);
     if (!providerConfig) throw new NotFoundError('Provider Configuration Not Found!');
     
