@@ -22,6 +22,8 @@ router.get('/get',
 }));
 
 router.post('/create', 
+  serviceProviderIdSchema,
+  validateInput,
   createServiceProviderSchema, 
   validateInput,
   defineController({
@@ -32,6 +34,8 @@ router.post('/create',
 }));
 
 router.put('/update',
+  serviceProviderIdSchema,
+  validateInput,
   updateServiceProviderSchema,
   validateInput,
   defineController({

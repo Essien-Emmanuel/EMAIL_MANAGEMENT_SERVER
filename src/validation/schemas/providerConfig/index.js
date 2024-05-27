@@ -18,16 +18,13 @@ exports.createProviderConfigSchema = async (req, _res, next) => {
 
 exports.updateProviderConfigSchema = async (req, _res, next) => {
   const serviceProviderName = await getServiceProviderNameFromConfig(req.query.providerConfigId);
-  console.log('ser ', serviceProviderName)
   const configPropSchema = getConfigPropSchema(serviceProviderName);
-  console.log('prop ', configPropSchema)
   const schema = {
     config: {
       type: "object",
       props: {...configPropSchema}
     }
-  } ////////
-  console.log(schema)
+  } 
   req.schema = {...schema };
   req.input = { ...req.body, };
   next();
