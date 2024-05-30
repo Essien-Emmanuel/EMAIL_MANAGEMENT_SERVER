@@ -6,17 +6,13 @@ class EmailRecipientService {
     const tag = await EmailTag.getById(tagId);
     if (!tag) throw new NotFoundError("Email tag Not Found.");
 
-    let emailExist;
-    for (const recipient of tag.emailRecipients) {
-      for (const $recipient of recipients) {
-        if ($recipient === recipient) emailExist = true
-      }
+    let updatedTag;
+    for (const recipient of recipients) {
+      const foundRecipient = await EmailTag.getRecipientByEmail(tagId, recipient.email);
+      if (foundRecipient) throw new ResourceConflictError('Reciepient email alreay exist.');
+
+      updatedTag = await EmailTag.updateRecipientByTagId(tagId, recipient.email)
     }
-    if (emailExist) throw new ResourceConflictError("Recipient email already exist.")
-
-    tag.emailRecipients = [ ...recipients ]
-
-    const updatedTag = await EmailTag.save();
     if (!updatedTag) throw new InternalServerError("Unable to save email recipients in email tag table");
 
     return {

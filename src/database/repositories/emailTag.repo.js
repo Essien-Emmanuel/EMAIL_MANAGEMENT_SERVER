@@ -12,6 +12,23 @@ class EmailTagRepo extends GenericRepo {
   getBySlug(slug) {
     return this.model.findOne({slug})
   }
+
+  getRecipientByEmail(tagId, recipientEmail) {
+    return this.model.findOne({
+      _id: tagId,
+      'emailRecipients.email': recipientEmail
+    });
+
+  }
+
+  updateRecipientByTagId(tagId, recipientEmail) {
+    return this.model.findByIdAndUpdate(
+      tagId,
+      { $push: { emailRecipients: { email: recipientEmail } } },
+      { new: true, useFindAndModify: false }
+    );
+
+  }
 }
 
 exports.EmailTag = new EmailTagRepo(EmailTagModel);

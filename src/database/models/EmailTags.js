@@ -8,7 +8,7 @@ exports.IEmailTag = {
 }
 
 const recipientSchema = new Schema({
-  email: { type: String, trim: true}
+  email: { type: String, trim: true, required: true},
 }, {timestamps: true})
 
 const EmailTagSchema = new Schema({
