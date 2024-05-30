@@ -12,12 +12,10 @@ exports.createServiceProviderSchema = (req, _res, next) => {
 exports.updateServiceProviderSchema = (req, _res, next) => {
   const schema = {
     name: {type: 'string'},
-    serviceProviderId: idSchemaValue 
   }
   req.schema = {...schema};
   req.input = {
     ...req.body, 
-    serviceProviderId: req.query.serviceProviderId
   }
   next();
 }

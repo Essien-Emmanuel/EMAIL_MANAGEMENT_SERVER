@@ -48,7 +48,7 @@ class TemplateService {
     if (!template) throw new NotFoundError('Template Not Found!');
 
     let updatedTemplate = await Template.update({ _id }, updateDto);
-    if (updatedTemplate.modifiedCount !== 1) throw new InternalServerError('Unable to update template');
+    if (updatedTemplate.modifiedCount !== 1) throw new InternalServerError('Unable to update template.');
     
     updatedTemplate = await Template.getById(_id);
 

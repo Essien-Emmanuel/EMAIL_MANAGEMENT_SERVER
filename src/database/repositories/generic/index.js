@@ -8,7 +8,6 @@ class GenericRepo {
   }
 
   create(payload) {
-    console.log(payload)
     return this.model.create(payload);
   }
 

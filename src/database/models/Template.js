@@ -8,7 +8,7 @@ const TemplateSchema = new Schema({
   text: { type: String, required: true, trim: true }, 
   personalizedVariables: [{type: String, trim: true}],
   user: {
-    type: String,
+    type: Schema.Types.ObjectId,
     required: true,
     ref: "User"
   }
