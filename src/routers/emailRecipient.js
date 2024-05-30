@@ -4,14 +4,14 @@ const defineController = require('../core/defineController');
 
 const { getRecipient, getRecipients, saveRecipients, updateRecipient, deleteRecipient } = EmailRecipientService;
 
-router.get('/get', defineController({
+router.get('/get-one', defineController({
   async controller(req) {
-    const response = await getRecipient(req.query.tagId);
+    const response = await getRecipient(req.query.tagId, req.query.recipientId);
     req.return(response);
   }
 }));
 
-router.get('/get', defineController({
+router.get('/get-all', defineController({
   async controller(req) {
     const response = await getRecipients(req.query.tagId);
     req.return(response);

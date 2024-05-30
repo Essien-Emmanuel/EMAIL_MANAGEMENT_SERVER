@@ -13,12 +13,18 @@ class EmailTagRepo extends GenericRepo {
     return this.model.findOne({slug})
   }
 
+  getRecipientById(tagId, recipientId) {
+    return this.model.finOne({
+      _id: tagId,
+      "emailRecipients._id": recipientId
+    });
+  }
+
   getRecipientByEmail(tagId, recipientEmail) {
     return this.model.findOne({
       _id: tagId,
       'emailRecipients.email': recipientEmail
     });
-
   }
 
   updateRecipientByTagId(tagId, recipientEmail) {

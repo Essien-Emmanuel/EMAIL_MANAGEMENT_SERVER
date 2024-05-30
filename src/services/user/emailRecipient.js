@@ -31,11 +31,12 @@ class EmailRecipientService {
     }
   }
 
-  static async getRecipient(email, tagId) {
+  static async getRecipient( tagId, recipientId) {
     const tag = await EmailTag.getById(tagId);
     if (!tag) throw new NotFoundError("Email Tag Not Found");
     
-    const foundRecipient = tag.emailRecipients.find(recipient => recipient.email === email );
+    const foundRecipient = await EmailTag.getRecipientById(tagId, recipientId);
+    if (!foundRecipient) throw new NotFoundError('Recipient email Not Found.')
 
     return {
       message: "Check email recipient in email tag",
