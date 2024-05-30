@@ -17,7 +17,12 @@ const UserSchema = new Schema({
   password: { type: String},
   otp: { type: String },
   otp_status: { type: String, enum: Object.values(OTPSTATUS), default: OTPSTATUS.INACTIVE },
-  otp_expiry_date: { type: Date}
+  otp_expiry_date: { type: Date},
+  tag: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: "EmailTag"
+  }
 }, {timestamps: true });
 
 exports.User = model('User', UserSchema)

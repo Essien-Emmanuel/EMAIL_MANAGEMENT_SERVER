@@ -48,7 +48,7 @@ class EmailTagService {
     const tag = await EmailTag.getById(_id);
     if (!tag) throw new NotFoundError('Email Tag Not Found!');
 
-    const deletedTag = await Tag.delete(_id);
+    const deletedTag = await EmailTag.delete(_id);
     if (deletedTag.deletedCount !== 1) throw new InternalServerError('Unable to delete email tag.');
 
     return {

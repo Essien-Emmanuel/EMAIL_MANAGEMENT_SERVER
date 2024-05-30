@@ -1,11 +1,19 @@
 const { EmailTag } = require('../../database/repositories/emailTag.repo');
-const { NotFoundError, InternalServerError } = require('../../libs/exceptions');
+const { NotFoundError, InternalServerError, ResourceConflictError } = require('../../libs/exceptions');
 
 class EmailRecipientService {
   static async saveRecipients(tagId, recipients) {
     const tag = await EmailTag.getById(tagId);
     if (!tag) throw new NotFoundError("Email tag Not Found.");
-    
+
+    let emailExist;
+    for (const recipient of tag.emailRecipients) {
+      for (const $recipient of recipients) {
+        if ($recipient === recipient) emailExist = true
+      }
+    }
+    if (emailExist) throw new ResourceConflictError("Recipient email already exist.")
+
     tag.emailRecipients = [ ...recipients ]
 
     const updatedTag = await EmailTag.save();
