@@ -1,4 +1,7 @@
 const { Schema, model } = require('mongoose');
+const mongooseHidden = require('mongoose-hidden')();
+const omitCommonFields = require('mongoose-omit-common-fields');
+
 const { OTPSTATUS } = require('../../enums');
 
 exports.IUser = {
@@ -24,5 +27,18 @@ const UserSchema = new Schema({
     ref: "EmailTag"
   }
 }, {timestamps: true });
+
+UserSchema.options.toJSON = {
+  transform: (doc, ret, options) => {
+    console.log('here')
+    console.log('transforming user ', ret)
+    delete ret.otp;
+    delete ret.password;
+    delete ret.otp_status;
+    console.log('ret ', ret)
+    // You can add or remove fields to omit as needed
+    return ret;
+  }
+};
 
 exports.User = model('User', UserSchema)
