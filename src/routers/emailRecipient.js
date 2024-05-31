@@ -34,7 +34,7 @@ router.put('/update', defineController({
 
 router.delete('/delete', defineController({
   async controller(req) {
-    const response = await deleteRecipient(req.query.tagId);
+    const response = await deleteRecipient(req.query.tagId, req.query.recipientId);
     req.return(response);
   }
 }));

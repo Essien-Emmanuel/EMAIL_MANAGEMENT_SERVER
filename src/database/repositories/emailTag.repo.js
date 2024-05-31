@@ -42,6 +42,14 @@ class EmailTagRepo extends GenericRepo {
       { $set: { 'emailRecipients.$.email': newEmail } }
     );
   }
+
+  deleteRecipientById(tagId, recipientId) {
+    return this.model.updateOne(
+      { _id: tagId },
+      { $pull: { emailRecipients: { _id: recipientId } } }
+    );
+
+  }
 }
 
 exports.EmailTag = new EmailTagRepo(EmailTagModel);
