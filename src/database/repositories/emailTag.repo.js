@@ -14,7 +14,7 @@ class EmailTagRepo extends GenericRepo {
   }
 
   getRecipientById(tagId, recipientId) {
-    return this.model.finOne({
+    return this.model.findOne({
       _id: tagId,
       "emailRecipients._id": recipientId
     });

@@ -35,12 +35,13 @@ class EmailRecipientService {
     const tag = await EmailTag.getById(tagId);
     if (!tag) throw new NotFoundError("Email Tag Not Found");
     
-    const foundRecipient = await EmailTag.getRecipientById(tagId, recipientId);
-    if (!foundRecipient) throw new NotFoundError('Recipient email Not Found.')
+    const foundRecipient = tag.emailRecipients.find(recipient => recipient._id.toString() === recipientId);
 
     return {
       message: "Check email recipient in email tag",
-      data: {recipientExists: foundRecipient}
+      data: {
+        ...(!foundRecipient? { recipientExists: false } : { recipientExists: true, recipient: foundRecipient })
+      }
     }
   }
 
