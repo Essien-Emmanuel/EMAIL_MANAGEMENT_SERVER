@@ -43,6 +43,11 @@ class InternalServerError extends GenericError {
     super(message, 500);
   }
 }
+class MongdbError extends GenericError {
+	constructor(message = 'mongodb error') {
+		super(message, 500)
+	}
+}
 
 module.exports = {
   NotFoundError,
@@ -51,6 +56,7 @@ module.exports = {
   ResourceConflictError,
   ServiceError,
   ValidationError,
-  InternalServerError
+  InternalServerError,
+	MongdbError
 }
 
