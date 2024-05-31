@@ -27,14 +27,14 @@ router.post('/add', defineController({
 
 router.put('/update', defineController({
   async controller(req) {
-    const response = await updateRecipient(req.query.tagId, req.body);
+    const response = await updateRecipient(req.query.tagId, req.query.recipientId, req.body.newEmail);
     req.return(response);
   }
 }));
 
 router.delete('/delete', defineController({
   async controller(req) {
-    const response = await deleteRecipient(req.query.tagId);
+    const response = await deleteRecipient(req.query.tagId, req.query.recipientId);
     req.return(response);
   }
 }));

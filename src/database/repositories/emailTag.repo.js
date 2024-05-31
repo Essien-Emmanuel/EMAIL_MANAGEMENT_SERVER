@@ -14,7 +14,7 @@ class EmailTagRepo extends GenericRepo {
   }
 
   getRecipientById(tagId, recipientId) {
-    return this.model.finOne({
+    return this.model.findOne({
       _id: tagId,
       "emailRecipients._id": recipientId
     });
@@ -32,6 +32,21 @@ class EmailTagRepo extends GenericRepo {
       tagId,
       { $push: { emailRecipients: { email: recipientEmail } } },
       { new: true, useFindAndModify: false }
+    );
+
+  }
+
+  updateRecipientEmailByRecipientId(tagId, recipientId, newEmail) {
+    return this.model.updateOne(
+      { _id: tagId, 'emailRecipients._id': recipientId },
+      { $set: { 'emailRecipients.$.email': newEmail } }
+    );
+  }
+
+  deleteRecipientById(tagId, recipientId) {
+    return this.model.updateOne(
+      { _id: tagId },
+      { $pull: { emailRecipients: { _id: recipientId } } }
     );
 
   }
