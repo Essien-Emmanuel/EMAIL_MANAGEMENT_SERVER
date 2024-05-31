@@ -1,5 +1,5 @@
 const { EmailTag } = require('../../database/repositories/emailTag.repo');
-const { NotFoundError, InternalServerError, ResourceConflictError } = require('../../libs/exceptions');
+const { NotFoundError, InternalServerError, ResourceConflictError, ServiceError } = require('../../libs/exceptions');
 
 class EmailRecipientService {
   static async saveRecipients(tagId, recipients) {
@@ -45,25 +45,41 @@ class EmailRecipientService {
     }
   }
 
-  static async updateRecipient(recipientId, tagId, updatedEmail) {
+  static async updateRecipient(tagId, recipientId, newEmail) {
     const tag = await EmailTag.getById(tagId);
     if (!tag) throw new NotFoundError('Email tag Not Found.');
 
-    const updatedRecipient = tag.emailRecipients.find(recipient => {
-      if (recipient.id !== recipientId) throw new NotFoundError("Email recipient id not found.");
-      recipient.email = updatedEmail;
-      return recipient
-    }) 
-
-    // const updateRecipient = tag.emailRecipients.id
-    if (!updatedRecipient) throw new InternalServerError('Unable to update recipient email');
+    let recipientExists = false;
     
-    const updatedTag = tag.save();
-    if (!updatedTag) throw new InternalServerError('Unabble to update tag');
+    if (tag.emailRecipients.length > 0) {
+      for (const recipient of tag.emailRecipients) {
+        if (recipient._id.toString() === recipientId) {
+          recipientExists = true
+          break
+        } 
+      }
+    } else throw new NotFoundError("Email tag has no recipients.");
+
+    if (!recipientExists) throw new NotFoundError("Recipient email Not Found.");
+
+    const updatedTag = await EmailTag.updateRecipientEmailByRecipientId(tagId, recipientId, newEmail);
+
+    if (updatedTag.modifiedCount === 0) throw new InternalServerError("Unable to update tag recipient email");
+
+    // const updatedRecipient = tag.emailRecipients.find(recipient => {
+    //   if (recipient._id !== recipientId) throw new NotFoundError("Email recipient id not found.");
+    //   recipient.email = newEmail;
+    //   return recipient
+    // }) 
+
+    // // const updateRecipient = tag.emailRecipients.id
+    // if (!updatedRecipient) throw new InternalServerError('Unable to update recipient email');
+    // const updatedTag = tag.save();
+    // if (!updatedTag) throw new InternalServerError('Unabble to update tag');
 
     return{
       message: 'Updated email recipient email successfully.',
-      data: { updatedRecipient }
+      data: { updatedTag: await EmailTag.getById(tagId) }
     }
   }
 
