@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Config = require('../config');
+const { MongdbError } = require('../libs/exceptions');
 
 const { uri } = Config.database;
 
@@ -22,7 +23,12 @@ class Database {
       return mongoose.connection;
     } catch (error) {
       console.log(error)
-      process.exit(-1)
+      switch (error.name) {
+        case "MongoParseError":
+          throw new MongdbError("mongodb+srv URI cannot have port number");      
+          default:
+          throw new MongdbError();
+      }
     }
   }
 }

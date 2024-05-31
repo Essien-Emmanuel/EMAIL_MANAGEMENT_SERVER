@@ -1,7 +1,7 @@
 const dotenv = require('dotenv');
 
 dotenv.config();
-const  dbUri = !['production', 'test'].includes(process.env.APP_ENV.trim())? process.env.DB_URL: process.env.ONLINE_DB_URI;
+const  dbUri = process.env.APP_ENV.trim() !== 'production' ? process.env.DB_URI: process.env.ONLINE_DB_URI;
 
 module.exports = {
   app: {
