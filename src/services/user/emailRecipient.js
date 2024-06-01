@@ -22,6 +22,16 @@ class EmailRecipientService {
     }
   }
 
+  static async saveRecipientsFromXlForOneTag(tagId, excelFile) {
+    const tag = await EmailTag.getById(tagId);
+    if (!tag) throw new NotFoundError("Email Tag Not Found");
+
+    //read emails from excel and save under tagId
+    console.log('xlfile ', excelFile);
+    return { data: {}}
+
+  }
+
   static async getRecipients(tagId) {
     const tag = await EmailTag.getById(tagId);
     if (!tag) throw new NotFoundError("Email Tag Not Found");

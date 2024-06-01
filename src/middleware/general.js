@@ -19,6 +19,16 @@ class GeneralMiddleware {
         ...(!error.errors? { message: error.message} : { message: error.message, errors: error.errors}),
         ...(!appEnv.includes(env) ? {} : { stack: error.stack} 
         )
+      });
+    }
+
+    if (err instanceof multer.MulterError) {
+      return res.status(500).json({
+        status: 'error',
+        code:500,
+        name: "MulterError",
+        timestamp: Date.now(),
+        message: "A Multer error occurred when uploading"
       })
     }
 
@@ -34,7 +44,7 @@ class GeneralMiddleware {
 
   static NotFoundError(req, res, _next) {
     return res.status(404).json({
-      status: 'Not Found error',
+      status: 'error',
       name: 'NotFoundError',
       code: 404,
       timestamp: Date.now(),
