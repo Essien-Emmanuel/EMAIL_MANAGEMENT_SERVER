@@ -1,5 +1,6 @@
 const { EmailTag } = require('../../database/repositories/emailTag.repo');
 const { NotFoundError, InternalServerError, ResourceConflictError } = require('../../libs/exceptions');
+const { readExcelFile } = require('../../utils');
 const { checkEmailRecipient } = require('../utils/index');
 
 class EmailRecipientService {
@@ -22,12 +23,15 @@ class EmailRecipientService {
     }
   }
 
-  static async saveRecipientsFromXlForOneTag(tagId, excelFile) {
+  static async saveRecipientsFromXlForOneTag(tagId, emailExcelFileBuffer) {
     const tag = await EmailTag.getById(tagId);
     if (!tag) throw new NotFoundError("Email Tag Not Found");
 
     //read emails from excel and save under tagId
-    console.log('xlfile ', excelFile);
+    //first read the excel file
+    const emailJsonFormat = readExcelFile(emailExcelFileBuffer);
+    console.log('here')
+    console.log('xlfile ', emailJsonFormat);
     return { data: {}}
 
   }

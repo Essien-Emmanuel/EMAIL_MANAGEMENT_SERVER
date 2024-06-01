@@ -22,7 +22,7 @@ class GeneralMiddleware {
       });
     }
 
-    if (err instanceof multer.MulterError) {
+    if (error instanceof multer.MulterError) {
       return res.status(500).json({
         status: 'error',
         code:500,

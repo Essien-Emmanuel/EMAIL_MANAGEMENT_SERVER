@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { EmailRecipientService } = require('../services/user/emailRecipient');
 const defineController = require('../core/defineController');
+const { uploadSingleFile } = require('../libs/fileUploads/index');
 
 const { getRecipient, getRecipients, saveRecipients, saveRecipientsFromXlForOneTag, updateRecipient, deleteRecipient } = EmailRecipientService;
 
@@ -25,11 +26,13 @@ router.post('/add', defineController({
   }
 }));
 
-router.post('/upload-email-sheet', defineController({
-  async controller(req) {
-    const response = await saveRecipientsFromXlForOneTag(req.query.tagId, req.files);
-    req.return(response);
-  }
+router.post('/upload-email-sheet',
+  uploadSingleFile('file'),
+  defineController({
+    async controller(req) {
+      const response = await saveRecipientsFromXlForOneTag(req.query.tagId, req.file.buffer);
+      req.return(response);
+    }
 }));
 
 router.put('/update', defineController({
