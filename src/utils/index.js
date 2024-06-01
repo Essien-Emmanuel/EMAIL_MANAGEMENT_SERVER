@@ -54,10 +54,16 @@ exports.replacePlaceholders = (text, values, regex = /{{(.*?)}}/g) => {
 	return text.replace(regex, (match, placeholder) => values[placeholder] || match);
 }
 
-exports.readExcelFile = (xlFileInBuffer) => {
-	const workbook = xlsx.read(xlFileInBuffer, { type: 'buffer' });
-	const sheetName = workbook.SheetNames[0];
-	const workSheet = workbook.Sheets[sheetName];
-	const excelToJsonData = xlsx.utils.sheet_to_json(workSheet);
-	return excelToJsonData
+exports.convertExcelFileToJsObject = (xlFileInBuffer) => {
+	return new Promise((resolve, reject) => {
+		try {
+			const workbook = xlsx.read(xlFileInBuffer, { type: 'buffer' });
+			const sheetName = workbook.SheetNames[0];
+			const workSheet = workbook.Sheets[sheetName];
+			const excelToJsonData = xlsx.utils.sheet_to_json(workSheet);
+			return resolve(excelToJsonData)
+		} catch (error) {
+			return reject(error)
+		}
+	})
 }

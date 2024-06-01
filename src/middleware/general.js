@@ -1,5 +1,7 @@
+const multer = require('multer')
 const Config = require('../config');
 const { AppEnv } = require('../enums');
+
 
 const { env } = Config.app
 const appEnv =  Object.values(AppEnv)
