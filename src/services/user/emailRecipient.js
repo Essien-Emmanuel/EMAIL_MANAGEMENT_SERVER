@@ -1,6 +1,8 @@
+const { response } = require('../../app');
 const { EmailTag } = require('../../database/repositories/emailTag.repo');
 const { NotFoundError, InternalServerError, ResourceConflictError } = require('../../libs/exceptions');
-const { checkEmailRecipient } = require('../utils/index');
+const { convertExcelFileToJsObject } = require('../../utils');
+const { checkEmailRecipient, updateRecipientFromXlResponseMsg } = require('../utils/index');
 
 class EmailRecipientService {
   static async saveRecipients(tagId, recipients) {
@@ -20,6 +22,41 @@ class EmailRecipientService {
       message: "Saved email recipients under tag.",
       data: { savedRecipients:  updatedTag.emailRecipients }
     }
+  }
+
+  static async saveRecipientsFromXlForOneTag(tagId, emailExcelFileBuffer) {
+    const tag = await EmailTag.getById(tagId);
+    if (!tag) throw new NotFoundError("Email Tag Not Found");
+
+    const recipients = await convertExcelFileToJsObject(emailExcelFileBuffer);
+
+    const existingRecipients = [];
+    let successCount = 0;
+    let failedCount = 0;
+    let updatedTag;
+
+    for (const recipient of recipients) {
+      const foundRecipient = await EmailTag.getRecipientByEmail(tagId, recipient.email);
+      if (foundRecipient) {
+        existingRecipients.push(recipient.email);
+        continue
+      } 
+
+      updatedTag = await EmailTag.updateRecipientByTagId(tagId, recipient.email);
+      
+      if (updatedTag) successCount += 1
+      else failedCount += 1;
+    }
+
+    const noOfRecipients = recipients.length;
+
+    const responseObj = updateRecipientFromXlResponseMsg(noOfRecipients, existingRecipients, successCount, failedCount);
+
+    return {
+      message: responseObj.responseMsg,
+      data: { ...responseObj.data }
+    }
+
   }
 
   static async getRecipients(tagId) {

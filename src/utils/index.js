@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const xlsx = require('xlsx');
 const Config = require('../config');
 
 const { salt, secret } = Config.app;
@@ -51,4 +52,18 @@ exports.checkValidVariables = ({variables, validVariables}) => {
 
 exports.replacePlaceholders = (text, values, regex = /{{(.*?)}}/g) => {
 	return text.replace(regex, (match, placeholder) => values[placeholder] || match);
+}
+
+exports.convertExcelFileToJsObject = (xlFileInBuffer) => {
+	return new Promise((resolve, reject) => {
+		try {
+			const workbook = xlsx.read(xlFileInBuffer, { type: 'buffer' });
+			const sheetName = workbook.SheetNames[0];
+			const workSheet = workbook.Sheets[sheetName];
+			const excelToJsonData = xlsx.utils.sheet_to_json(workSheet);
+			return resolve(excelToJsonData)
+		} catch (error) {
+			return reject(error)
+		}
+	})
 }
