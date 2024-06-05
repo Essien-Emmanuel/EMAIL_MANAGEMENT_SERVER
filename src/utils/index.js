@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const xlsx = require('xlsx');
+const csv = require('csv-parser');
+const { Readable } = require('stream');
 const Config = require('../config');
 
 const { salt, secret } = Config.app;
@@ -65,5 +67,30 @@ exports.convertExcelFileToJsObject = (xlFileInBuffer) => {
 		} catch (error) {
 			return reject(error)
 		}
+	})
+}
+
+exports.convertCsvToObject = (fileBuffer) => {
+	return new Promise((resolve, reject) => {
+		const csvObjectArray = [];
+		const stream = Readable.from(fileBuffer.toString());
+
+		stream
+		.pipe(csv())
+		.on('data', (data) => {
+			csvObjectArray.push(data)
+		})
+		.on('end', () => {
+			const response = {
+				isConverted: csvObjectArray.length > 0? true : false,
+				data: csvObjectArray
+			}
+			return resolve(response)
+		})
+		.on('error', (error) => {
+			console.error('Error processing the file:', error);
+			return reject(error)
+		});
+
 	})
 }

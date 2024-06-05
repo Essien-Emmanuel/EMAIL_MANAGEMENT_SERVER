@@ -13,7 +13,7 @@ exports.checkEmailRecipient = (recipientId, recipients) => {
   return recipientExists
 }
 
-exports.updateRecipientFromXlResponseMsg = (noOfRecipients, existingRecipients, successCount, failedCount) => {
+exports.updateRecipientFromFileResponseMsg = (noOfRecipients, existingRecipients, successCount, failedCount) => {
   const response = {
     responseMsg: null,
     data: {}
