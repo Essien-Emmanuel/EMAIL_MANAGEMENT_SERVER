@@ -1,8 +1,8 @@
 const { response } = require('../../app');
 const { EmailTag } = require('../../database/repositories/emailTag.repo');
 const { NotFoundError, InternalServerError, ResourceConflictError } = require('../../libs/exceptions');
-const { convertExcelFileToJsObject } = require('../../utils');
-const { checkEmailRecipient, updateRecipientFromXlResponseMsg } = require('../utils/index');
+const { convertExcelFileToJsObject, convertCsvToObject } = require('../../utils');
+const { checkEmailRecipient, updateRecipientFromFileResponseMsg } = require('../utils/index');
 
 class EmailRecipientService {
   static async saveRecipients(tagId, recipients) {
@@ -23,13 +23,8 @@ class EmailRecipientService {
       data: { savedRecipients:  updatedTag.emailRecipients }
     }
   }
-
-  static async saveRecipientsFromXlForOneTag(tagId, emailExcelFileBuffer) {
-    const tag = await EmailTag.getById(tagId);
-    if (!tag) throw new NotFoundError("Email Tag Not Found");
-
-    const recipients = await convertExcelFileToJsObject(emailExcelFileBuffer);
-
+  
+  static async saveRecipientFromRecipients(tagId, recipients) {
     const existingRecipients = [];
     let successCount = 0;
     let failedCount = 0;
@@ -50,13 +45,50 @@ class EmailRecipientService {
 
     const noOfRecipients = recipients.length;
 
-    const responseObj = updateRecipientFromXlResponseMsg(noOfRecipients, existingRecipients, successCount, failedCount);
+    return {
+      noOfRecipients, existingRecipients, successCount, failedCount
+    };
+  }
+
+  static async saveRecipientsFromXlForOneTag(tagId, emailExcelFileBuffer) {
+    const tag = await EmailTag.getById(tagId);
+    if (!tag) throw new NotFoundError("Email Tag Not Found");
+
+    const recipients = await convertExcelFileToJsObject(emailExcelFileBuffer);
+
+    
+    const {
+      noOfRecipients, existingRecipients, successCount, failedCount 
+    } = await EmailRecipientService.saveRecipientFromRecipients(tagId, recipients);
+
+    const responseObj = updateRecipientFromFileResponseMsg(noOfRecipients, existingRecipients, successCount, failedCount);
 
     return {
       message: responseObj.responseMsg,
       data: { ...responseObj.data }
     }
 
+  }
+
+  static async saveRecipientsFromCsvForOneTag(tagId, emailCsvFileBuffer) {
+    const tag = await EmailTag.getById(tagId);
+    if (!tag) throw new NotFoundError("Email Tag Not Found");
+
+    const convertedCsvFile = await convertCsvToObject(emailCsvFileBuffer);
+    if (!convertedCsvFile.isConverted) throw new InternalServerError('CSV file not converted.');
+
+    const recipients = convertedCsvFile.data;
+
+    const {
+      noOfRecipients, existingRecipients, successCount, failedCount 
+    } = await EmailRecipientService.saveRecipientFromRecipients(tagId, recipients);
+
+    const responseObj = updateRecipientFromFileResponseMsg(noOfRecipients, existingRecipients, successCount, failedCount);
+
+    return {
+      message: responseObj.responseMsg,
+      data: { ...responseObj.data }
+    }
   }
 
   static async getRecipients(tagId) {
