@@ -1,5 +1,5 @@
 const { User } = require('../../database/repositories/user.repo');
-const { EmailTag } = require('../../database/repositories/emailTag.repo');
+const { EmailTag } = require('../../database/repositories/tag.repo');
 const { ResourceConflictError, InternalServerError, NotFoundError } = require('../../libs/exceptions');
 
 class EmailTagService {

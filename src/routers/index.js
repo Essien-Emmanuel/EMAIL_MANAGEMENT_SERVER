@@ -4,8 +4,8 @@ const { router: templateRoutes } = require('./template');
 const { serviceProviderRoutes } = require('./serviceProvider')
 const { providerConfigRoutes } = require('./providerConfig');
 const { mailerRoutes } = require('./mailer');
-const { emailTagRoutes } = require('./emailTag');
-const { emailRecipientRoutes } = require('./emailRecipient');
+const { emailTagRoutes } = require('./tag');
+const { emailRecipientRoutes } = require('./recipient');
 
 
 router.use('/user/auth', authRoutes);

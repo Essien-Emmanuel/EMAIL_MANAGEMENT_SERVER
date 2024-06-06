@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 
 const routes = require('./routers/index');
 const { ErrorHandler, NotFoundError, DevLogs } = require('./middleware/general');
-const { EmailTag } = require('./database/repositories/emailTag.repo');
+const { EmailTag } = require('./database/repositories/tag.repo');
 
 const APIBASE = '/api/v1';
 const app = express();
