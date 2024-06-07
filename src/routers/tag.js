@@ -1,9 +1,9 @@
 const router = require('express').Router();
-const { EmailTagService } = require('../services/user/emailTag');
+const { TagService } = require('../services/user/tag');
 const defineController = require('../core/defineController');
 const { createTagSchema } = require('../validation/schemas/emailTag');
 
-const { getTag, createTag, updateTag, deleteTag } = EmailTagService;
+const { getTag, createTag, updateTag, deleteTag } = TagService;
 
 router.get('/get', defineController({
   async controller(req) {
@@ -35,4 +35,4 @@ router.delete('/delete', defineController({
   }
 }));
 
-exports.emailTagRoutes = router;
+exports.tagRoutes = router;

@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { EmailRecipientService } = require('../services/user/emailRecipient');
+const { RecipientService } = require('../services/user/recipient');
 const defineController = require('../core/defineController');
 const { uploadSingleFile } = require('../libs/fileUploads/index');
 
@@ -7,11 +7,12 @@ const {
   getRecipient, 
   getRecipients, 
   saveRecipients, 
+  saveRecipientsByTagId,
   saveRecipientsFromXlForOneTag,
   saveRecipientsFromCsvForOneTag, 
   updateRecipient, 
   deleteRecipient 
-} = EmailRecipientService;
+} = RecipientService;
 
 router.get('/get-one', defineController({
   async controller(req) {
@@ -29,7 +30,7 @@ router.get('/get-all', defineController({
 
 router.post('/add', defineController({
   async controller(req) {
-    const response = await saveRecipients(req.query.tagId, req.body.recipients);
+    const response = await saveRecipientsByTagId(req.query.tagId, req.body.recipients);
     req.return(response);
   }
 }));

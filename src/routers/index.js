@@ -4,7 +4,7 @@ const { router: templateRoutes } = require('./template');
 const { serviceProviderRoutes } = require('./serviceProvider')
 const { providerConfigRoutes } = require('./providerConfig');
 const { mailerRoutes } = require('./mailer');
-const { emailTagRoutes } = require('./tag');
+const { tagRoutes } = require('./tag');
 const { emailRecipientRoutes } = require('./recipient');
 
 
@@ -13,7 +13,7 @@ router.use('/user/template', templateRoutes);
 router.use('/mail-service-provider', serviceProviderRoutes);
 router.use('/provider/config', providerConfigRoutes);
 router.use('/user/mail', mailerRoutes);
-router.use('/user/tag', emailTagRoutes);
+router.use('/user/tag', tagRoutes);
 router.use('/user/recipient', emailRecipientRoutes);
 
 module.exports = router;

@@ -1,81 +1,27 @@
 const { response } = require('../../app');
 const { Tag  } = require('../../database/repositories/tag.repo');
-const { Recipient } = require('../../database/repositories/recipient.repo');
 const { NotFoundError, InternalServerError, ResourceConflictError } = require('../../libs/exceptions');
 const { convertExcelFileToJsObject, convertCsvToObject } = require('../../utils');
 const { checkEmailRecipient, updateRecipientFromFileResponseMsg } = require('../utils/index');
 
 class RecipientService {
-  static async saveRecipientsByTagId(tagId, recipients) {
+  static async saveRecipients(tagId, recipients) {
     const tag = await Tag.getById(tagId);
     if (!tag) throw new NotFoundError("Email tag Not Found.");
 
-    if (recipients.length < 1) {
-      return {
-        message: 'No recipient provided for save',
-        data: {}
-      }
-    }
-
-    let savedSuccessCount = 0;
-    let savedFailCount = 0;
-    const existingRecipients = [];
-    const unsavedRecipients = [];
-    const savedRecipients = [];
-    const unUpdatedTag = [];
-
+    let updatedTag;
     for (const recipient of recipients) {
-      const foundRecipient = await Recipient.getByEmailAndTagId(tagId, recipient.email);
-      if (foundRecipient) {
-        existingRecipients.push(recipient.email);
-        continue
-      };
+      const foundRecipient = await Tag.getRecipientByEmail(tagId, recipient.email);
+      if (foundRecipient) throw new ResourceConflictError('Reciepient email alreay exist.');
 
-      const newRecipient = await Recipient.create({ email: recipient.email, tag: tag._id});
-      if (!newRecipient) {
-        savedFailCount += 0;
-        unsavedRecipients.push(recipient.email);
-        continue;
-      }
-
-      tag.recipients.push(newRecipient._id);
-
-      const savedRecipient = await tag.save();
-      if (!savedRecipient) {
-        unUpdatedTag = tag.tag_name;
-        continue;
-      }
-      savedSuccessCount += 1;
-      savedRecipients.push(recipient.email);
-
+      updatedTag = await Tag.updateRecipientByTagId(tagId, recipient.email)
     }
-   
-    const savedRecipientSuccessInfo = {
-      savedSuccessCount,
-      savedFailCount,
-      unUpdatedTag,
-      existingRecipients,
-      unsavedRecipients,
-      savedRecipients
-    }
+    if (!updatedTag) throw new InternalServerError("Unable to save email recipients in email tag table");
 
-    let savedAllRecipients; 
-    let successMsg;
-    if (recipients.length < savedSuccessCount) {
-      savedAllRecipients = savedRecipientSuccessInfo;
-      successMsg = 'success'
-    } else {
-      savedAllRecipients = savedRecipients;
-      successMsg = `saved email recipients under ${tag.tag_name}, tag`;
-    }
     return {
-      message: successMsg,
-      data: { savedRecipients: savedAllRecipients }
+      message: "Saved email recipients under tag.",
+      data: { savedRecipients:  updatedTag.emailRecipients }
     }
-  }
-
-  static async saveRecipients(recipients) {
-
   }
   
   static async saveRecipientFromRecipients(tagId, recipients) {

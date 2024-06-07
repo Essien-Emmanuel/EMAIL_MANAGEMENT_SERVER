@@ -1,5 +1,5 @@
 const { GenericRepo } = require('./generic/index');
-const { EmailTagModel } = require('../models/Tag');
+const { TagModel } = require('../models/Tag');
 
 class TagRepo extends GenericRepo {
   constructor(model) {
@@ -52,4 +52,4 @@ class TagRepo extends GenericRepo {
   }
 }
 
-exports.Tag = new EmailTagRepo(TagModel);
+exports.Tag = new TagRepo(TagModel);
