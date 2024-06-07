@@ -61,13 +61,15 @@ class RecipientService {
 
     let savedAllRecipients; 
     let successMsg;
-    if (recipients.length < savedSuccessCount) {
+
+    if (savedSuccessCount > 0 && recipients.length === savedSuccessCount) {
+      savedAllRecipients = savedRecipients;
+      successMsg = `saved email recipients under ${tag.slug}, tag`;
+    } else {
       savedAllRecipients = savedRecipientSuccessInfo;
       successMsg = 'success'
-    } else {
-      savedAllRecipients = savedRecipients;
-      successMsg = `saved email recipients under ${tag.tag_name}, tag`;
     }
+
     return {
       message: successMsg,
       data: { savedRecipients: savedAllRecipients }

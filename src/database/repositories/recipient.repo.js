@@ -12,7 +12,7 @@ class RecipientRepo extends GenericRepo{
   }
 
   getByEmailAndTagId(tagId, email) {
-    return this.model.findOne({ email, tagId });
+    return this.model.findOne({ email, tag: tagId });
   }
 }
 
