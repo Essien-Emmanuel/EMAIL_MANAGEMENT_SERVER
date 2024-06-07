@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { TagService } = require('../services/user/tag');
 const defineController = require('../core/defineController');
-const { createTagSchema } = require('../validation/schemas/emailTag');
+const { createTagSchema } = require('../validation/schemas/tag');
 
 const { getTag, createTag, updateTag, deleteTag } = TagService;
 

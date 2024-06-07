@@ -16,67 +16,75 @@ class RecipientService {
         data: {}
       }
     }
+    async function saveRecipientFromRecipients() {
+      let savedSuccessCount = 0;
+      let savedFailCount = 0;
+      const existingRecipients = [];
+      const unsavedRecipients = [];
+      const savedRecipients = [];
+      const unUpdatedTag = [];
+      
+      for (const recipient of recipients) {
+        const foundRecipient = await Recipient.getByEmailAndTagId(tagId, recipient);
+        if (foundRecipient) {
+          existingRecipients.push(recipient);
+          continue
+        };
 
-    let savedSuccessCount = 0;
-    let savedFailCount = 0;
-    const existingRecipients = [];
-    const unsavedRecipients = [];
-    const savedRecipients = [];
-    const unUpdatedTag = [];
+        const newRecipient = await Recipient.create({ email: recipient, tag: tag._id});
+        if (!newRecipient) {
+          savedFailCount += 0;
+          unsavedRecipients.push(recipient);
+          continue;
+        }
 
-    for (const recipient of recipients) {
-      const foundRecipient = await Recipient.getByEmailAndTagId(tagId, recipient.email);
-      if (foundRecipient) {
-        existingRecipients.push(recipient.email);
-        continue
-      };
+        tag.recipients.push(newRecipient._id);
 
-      const newRecipient = await Recipient.create({ email: recipient.email, tag: tag._id});
-      if (!newRecipient) {
-        savedFailCount += 0;
-        unsavedRecipients.push(recipient.email);
-        continue;
+        const savedRecipient = await tag.save();
+        if (!savedRecipient) {
+          unUpdatedTag = tag.tag_name;
+          continue;
+        }
+        savedSuccessCount += 1;
+        savedRecipients.push(recipient);
+
       }
-
-      tag.recipients.push(newRecipient._id);
-
-      const savedRecipient = await tag.save();
-      if (!savedRecipient) {
-        unUpdatedTag = tag.tag_name;
-        continue;
+      return {
+        savedSuccessCount,
+        savedFailCount,
+        unUpdatedTag,
+        existingRecipients,
+        unsavedRecipients,
+        savedRecipients
       }
-      savedSuccessCount += 1;
-      savedRecipients.push(recipient.email);
-
+    
     }
-   
-    const savedRecipientSuccessInfo = {
-      savedSuccessCount,
-      savedFailCount,
-      unUpdatedTag,
-      existingRecipients,
-      unsavedRecipients,
-      savedRecipients
-    }
+    
+    const savedRecipientSuccessInfo = await saveRecipientFromRecipients();
+    const { savedSuccessCount, savedRecipients } = savedRecipientSuccessInfo;
 
     let savedAllRecipients; 
     let successMsg;
+    let statusCode;
 
     if (savedSuccessCount > 0 && recipients.length === savedSuccessCount) {
       savedAllRecipients = savedRecipients;
       successMsg = `saved email recipients under ${tag.slug}, tag`;
+      statusCode = 201;
     } else {
       savedAllRecipients = savedRecipientSuccessInfo;
-      successMsg = 'success'
+      successMsg = 'Result of the operation'
+      statusCode = 200;
     }
 
     return {
+      statusCode,
       message: successMsg,
-      data: { savedRecipients: savedAllRecipients }
+      data: { ...(statusCode === 200 ? { ...savedAllRecipients } : { savedRecipients: savedAllRecipients}) }
     }
   }
 
-  static async saveRecipients(recipients) {
+  static async saveRecipients(recipient) {
 
   }
   

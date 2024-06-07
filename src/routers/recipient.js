@@ -2,6 +2,9 @@ const router = require('express').Router();
 const { RecipientService } = require('../services/user/recipient');
 const defineController = require('../core/defineController');
 const { uploadSingleFile } = require('../libs/fileUploads/index');
+const { tagIdSchema } = require('../validation/schemas/tag');
+const { saveRecipientsByTagIdSchema } = require('../validation/schemas/recipient');
+const { validateInput } = require('../validation');
 
 const { 
   getRecipient, 
@@ -28,7 +31,12 @@ router.get('/get-all', defineController({
   }
 }));
 
-router.post('/add', defineController({
+router.post('/add', 
+tagIdSchema,
+validateInput,
+saveRecipientsByTagIdSchema,
+validateInput,
+defineController({
   async controller(req) {
     const response = await saveRecipientsByTagId(req.query.tagId, req.body.recipients);
     req.return(response);
