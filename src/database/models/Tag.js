@@ -1,9 +1,9 @@
 const { Schema, model } = require('mongoose');
 
-exports.IEmailTag = {
+exports.ITag = {
   slug: 'string',
-  tagName: 'string',
-  emails: 'array',
+  tag_name: 'string',
+  recipients: 'array',
   user: "string"
 }
 
@@ -11,10 +11,14 @@ const recipientSchema = new Schema({
   email: { type: String, trim: true, required: true},
 }, {timestamps: true})
 
-const EmailTagSchema = new Schema({
+const TagSchema = new Schema({
   slug: { type: String, trim: true, unique: true },
-  tagName: { type: String, trim: true, unique: true },
-  emailRecipients: [ recipientSchema ],
+  tag_name: { type: String, trim: true, unique: true },
+  recipients: [{
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: "Recipient"
+  }],
   user: { 
     type: Schema.Types.ObjectId,
     required: true, 
@@ -22,4 +26,4 @@ const EmailTagSchema = new Schema({
   }
 }, { timestamps: true });
 
-exports.EmailTagModel = model('EmailTag', EmailTagSchema);
+exports.TagModel = model('Tag', TagSchema);

@@ -23,7 +23,7 @@ send emails to the emails they've saved
 save customers emails for automation -
 delete, send, program emails, ✔
 template should be able to collect email, save email by tags, so as to blast them at once. for campaign. e.g tronweb customers. ✔
-save email through csv -, through forms✔
+save email through csv, through forms✔
 manage emails.✔
 
 set automations. when someone joins tags, certain email should go instantly. next day send another email maybe by time.

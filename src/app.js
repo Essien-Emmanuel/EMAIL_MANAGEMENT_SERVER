@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 
 const routes = require('./routers/index');
 const { ErrorHandler, NotFoundError, DevLogs } = require('./middleware/general');
-const { EmailTag } = require('./database/repositories/emailTag.repo');
+const { Tag } = require('./database/repositories/tag.repo');
 
 const APIBASE = '/api/v1';
 const app = express();
@@ -19,8 +19,8 @@ app.use(NotFoundError);
 
 async function seedDb() {
   //test code
-  const up = await EmailTag.getById('66586250a20b31a2bf0d9610');
-  up.emailRecipients = [];
+  const up = await Tag.getById('6663176eacf98a2b0f94c83a');
+  up.recipients = [];
   await up.save();
   console.log(up)
 }

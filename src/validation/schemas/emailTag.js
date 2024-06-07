@@ -1,6 +1,6 @@
 exports.createTagSchema = (req, _res, next) => {
   const schema = {
-    tagName: { type: 'string'},
+    tag_name: { type: 'string'},
     slug: {type: 'string'},
     emailRecipients: { type: "array", items: { 
       type: 'object', props: { email: { type: "email" } }
