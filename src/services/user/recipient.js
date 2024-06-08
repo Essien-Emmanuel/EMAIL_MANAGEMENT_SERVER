@@ -62,8 +62,16 @@ class RecipientService {
     
     const savedRecipientSuccessInfo = await saveRecipientFromRecipients();
     const { savedSuccessCount, savedRecipients } = savedRecipientSuccessInfo;
-    
+   
     const mailResult = await sendRecipientWelcomeMail(savedRecipients);
+    const unsentRecipients = savedRecipients;
+
+    if (mailResult.success === false && mailResult.deliveredEmail.length > 0) {
+      for (const email of mailResult.deliveredEmail ) {
+        const index = unsentRecipients.findIndex(email);
+        unsentRecipients.splice(index, 1);
+      }
+    } 
 
     let savedAllRecipients; 
     let successMsg;
@@ -87,7 +95,8 @@ class RecipientService {
         mailResponse: { 
           status: mailResult.status, 
           deliveryEmailCount: mailResult.deliveredEmail.length, 
-          deliveredEmails: mailResult.deliveredEmail
+          deliveredEmails: mailResult.deliveredEmail,
+          unsentRecipients: unsentRecipients
         }
     }
     }
@@ -140,6 +149,14 @@ class RecipientService {
     const { savedSuccessCount, savedRecipients } = savedRecipientSuccessInfo;
 
     const mailResult = await sendRecipientWelcomeMail(savedRecipients);
+    const unsentRecipients = savedRecipients;
+
+    if (!mailResult.success && mailResult.deliveredEmail.length > 0) {
+      for (const email of mailResult.deliveredEmail ) {
+        const index = unsentRecipients.findIndex(email);
+        unsentRecipients.splice(index, 1);
+      }
+    }
 
     let savedAllRecipients; 
     let successMsg;
@@ -163,7 +180,8 @@ class RecipientService {
         mailResponse: { 
           status: mailResult.status, 
           deliveryEmailCount: mailResult.deliveredEmail.length, 
-          deliveredEmails: mailResult.deliveredEmail
+          deliveredEmails: mailResult.deliveredEmail,
+          unsentRecipients
         }
       }
     }
@@ -245,6 +263,14 @@ class RecipientService {
     } = await RecipientService.saveRecipientFromRecipients(tagId, recipientsObj);
 
     const mailResult = await sendRecipientWelcomeMail(savedRecipients);
+    const unsentRecipients = savedRecipients;
+
+    if (!mailResult.success && mailResult.deliveredEmail.length > 0) {
+      for (const email of mailResult.deliveredEmail ) {
+        const index = unsentRecipients.findIndex(email);
+        unsentRecipients.splice(index, 1);
+      }
+    }
 
     const responseObj = updateRecipientFromFileResponseMsg(noOfRecipients, existingRecipients, successCount, failedCount, savedRecipientCount, savedRecipients);
 
@@ -254,7 +280,8 @@ class RecipientService {
         mailResponse: { 
           status: mailResult.status, 
           deliveryEmailCount: mailResult.deliveredEmail.length, 
-          deliveredEmails: mailResult.deliveredEmail
+          deliveredEmails: mailResult.deliveredEmail,
+          unsentRecipients
         }
       }
     }
@@ -275,15 +302,14 @@ class RecipientService {
     } = await RecipientService.saveRecipientFromRecipients(tagId, recipientsObj);
 
     const mailResult = await sendRecipientWelcomeMail(savedRecipients);
-    // let unsentRecipients;
+    const unsentRecipients = savedRecipients;
 
-    // if (!mailResult.success && mailResult.deliveredEmail.length > 0) {
-    //   unsentRecipients = Object.values(recipientsObj);
-    //   for (const email of mailResult.deliveredEmail ) {
-    //     const index = unsentRecipients.findIndex(email);
-    //     unsentRecipients.splice(index, 1);
-    //   }
-    // }
+    if (!mailResult.success && mailResult.deliveredEmail.length > 0) {
+      for (const email of mailResult.deliveredEmail ) {
+        const index = unsentRecipients.findIndex(email);
+        unsentRecipients.splice(index, 1);
+      }
+    }
 
     const responseObj = updateRecipientFromFileResponseMsg(noOfRecipients, existingRecipients, successCount, failedCount,  savedRecipientCount, savedRecipients);
 
@@ -294,7 +320,8 @@ class RecipientService {
         mailResponse: { 
           status: mailResult.status, 
           deliveryEmailCount: mailResult.deliveredEmail.length, 
-          deliveredEmails: mailResult.deliveredEmail
+          deliveredEmails: mailResult.deliveredEmail,
+          undeliveredEmails
         }
       }
     }

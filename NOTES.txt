@@ -6,3 +6,9 @@ Body Content: Main message or information.
 Call to Action (CTA): Prompts recipients to take a specific action.
 Footer: Legal disclaimers, unsubscribe links, and contact details.
 Personalization Variables: Placeholders for dynamic personalization, such as recipient's name.  
+
+api logging
+fields - status, activity, timestamp, 
+
+general_logger_table
+tag_activity_table
