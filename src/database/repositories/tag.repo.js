@@ -30,16 +30,25 @@ class TagRepo extends GenericRepo {
   updateRecipientByTagId(tagId, recipientEmail) {
     return this.model.findByIdAndUpdate(
       tagId,
-      { $push: { emailRecipients: { email: recipientEmail } } },
+      { $push: { recipients: { email: recipientEmail } } },
+      { new: true, useFindAndModify: false }
+    );
+
+  }
+  //mvp
+  updateRecipients(tagId, recipientEmail) {
+    return this.model.findByIdAndUpdate(
+      tagId,
+      { $push: { recipients: recipientEmail } },
       { new: true, useFindAndModify: false }
     );
 
   }
 
-  updateRecipientEmailByRecipientId(tagId, recipientId, newEmail) {
+  updateRecipientEmail(tagId, newEmail) {
     return this.model.updateOne(
-      { _id: tagId, 'emailRecipients._id': recipientId },
-      { $set: { 'emailRecipients.$.email': newEmail } }
+      { _id: tagId },
+      { $set: { 'recipients': newEmail } }
     );
   }
 

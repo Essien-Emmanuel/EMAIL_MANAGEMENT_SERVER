@@ -1,9 +1,9 @@
-const { response } = require('../../app');
+const mongoose = require('mongoose');
 const { Tag  } = require('../../database/repositories/tag.repo');
 const { Recipient } = require('../../database/repositories/recipient.repo');
 const { NotFoundError, InternalServerError, ResourceConflictError } = require('../../libs/exceptions');
-const { convertExcelFileToJsObject, convertCsvToObject } = require('../../utils');
-const { checkEmailRecipient, updateRecipientFromFileResponseMsg } = require('../utils/index');
+const { convertExcelFileToJsObject, convertCsvToObject, deleteElementInList } = require('../../utils');
+const { checkEmailRecipient, updateRecipientFromFileResponseMsg, sendRecipientWelcomeMail } = require('../utils/index');
 
 class RecipientService {
   static async saveRecipientsByTagId(tagId, recipients) {
@@ -62,6 +62,8 @@ class RecipientService {
     
     const savedRecipientSuccessInfo = await saveRecipientFromRecipients();
     const { savedSuccessCount, savedRecipients } = savedRecipientSuccessInfo;
+    
+    const mailResult = await sendRecipientWelcomeMail(savedRecipients);
 
     let savedAllRecipients; 
     let successMsg;
@@ -80,7 +82,14 @@ class RecipientService {
     return {
       statusCode,
       message: successMsg,
-      data: { ...(statusCode === 200 ? { ...savedAllRecipients } : { savedRecipients: savedAllRecipients}) }
+      data: { 
+        ...(statusCode === 200 ? { ...savedAllRecipients } : { savedRecipients: savedAllRecipients}),
+        mailResponse: { 
+          status: mailResult.status, 
+          deliveryEmailCount: mailResult.deliveredEmail.length, 
+          deliveredEmails: mailResult.deliveredEmail
+        }
+    }
     }
   }
 
@@ -130,6 +139,8 @@ class RecipientService {
     const savedRecipientSuccessInfo = await saveRecipientFromRecipients();
     const { savedSuccessCount, savedRecipients } = savedRecipientSuccessInfo;
 
+    const mailResult = await sendRecipientWelcomeMail(savedRecipients);
+
     let savedAllRecipients; 
     let successMsg;
     let statusCode;
@@ -147,7 +158,14 @@ class RecipientService {
     return {
       statusCode,
       message: successMsg,
-      data: { ...(statusCode === 200 ? { ...savedAllRecipients } : { savedRecipients: savedAllRecipients}) }
+      data: { 
+        ...(statusCode === 200 ? { ...savedAllRecipients } : { savedRecipients: savedAllRecipients}),
+        mailResponse: { 
+          status: mailResult.status, 
+          deliveryEmailCount: mailResult.deliveredEmail.length, 
+          deliveredEmails: mailResult.deliveredEmail
+        }
+      }
     }
   }
 
@@ -179,19 +197,28 @@ class RecipientService {
   }
   
   static async saveRecipientFromRecipients(tagId, recipients) {
-    const existingRecipients = [];
     let successCount = 0;
     let failedCount = 0;
     let updatedTag;
+    let savedRecipientCount = 0
+    const savedRecipients = []
+    const existingRecipients = [];
 
     for (const recipient of recipients) {
-      const foundRecipient = await Tag.getRecipientByEmail(tagId, recipient.email);
+      const foundRecipient = await Recipient.getByEmailAndTagId(tagId, recipient.email);
       if (foundRecipient) {
         existingRecipients.push(recipient.email);
         continue
       } 
+      
+      const newRecipient = await Recipient.create({ email: recipient.email});
+      newRecipient.tag = new mongoose.Types.ObjectId(tagId)
+      await newRecipient.save()
 
-      updatedTag = await Tag.updateRecipientByTagId(tagId, recipient.email);
+      savedRecipientCount += 1;
+      savedRecipients.push(recipient.email);
+
+      updatedTag = await Tag.updateRecipients(tagId, newRecipient._id);
       
       if (updatedTag) {
         successCount += 1
@@ -203,7 +230,7 @@ class RecipientService {
     const noOfRecipients = recipients.length;
 
     return {
-      noOfRecipients, existingRecipients, successCount, failedCount
+      noOfRecipients, existingRecipients, successCount, failedCount, savedRecipientCount, savedRecipients
     };
   }
 
@@ -211,18 +238,25 @@ class RecipientService {
     const tag = await Tag.getById(tagId);
     if (!tag) throw new NotFoundError("Email Tag Not Found");
 
-    const recipients = await convertExcelFileToJsObject(emailExcelFileBuffer);
-
+    const recipientsObj = await convertExcelFileToJsObject(emailExcelFileBuffer);
     
     const {
-      noOfRecipients, existingRecipients, successCount, failedCount 
-    } = await EmailRecipientService.saveRecipientFromRecipients(tagId, recipients);
+      noOfRecipients, existingRecipients, successCount, failedCount, savedRecipientCount, savedRecipients
+    } = await RecipientService.saveRecipientFromRecipients(tagId, recipientsObj);
 
-    const responseObj = updateRecipientFromFileResponseMsg(noOfRecipients, existingRecipients, successCount, failedCount);
+    const mailResult = await sendRecipientWelcomeMail(savedRecipients);
+
+    const responseObj = updateRecipientFromFileResponseMsg(noOfRecipients, existingRecipients, successCount, failedCount, savedRecipientCount, savedRecipients);
 
     return {
       message: responseObj.responseMsg,
-      data: { ...responseObj.data }
+      data: { ...responseObj.data,
+        mailResponse: { 
+          status: mailResult.status, 
+          deliveryEmailCount: mailResult.deliveredEmail.length, 
+          deliveredEmails: mailResult.deliveredEmail
+        }
+      }
     }
 
   }
@@ -234,17 +268,35 @@ class RecipientService {
     const convertedCsvFile = await convertCsvToObject(emailCsvFileBuffer);
     if (!convertedCsvFile.isConverted) throw new InternalServerError('CSV file not converted.');
 
-    const recipients = convertedCsvFile.data;
+    const recipientsObj = convertedCsvFile.data;
 
     const {
-      noOfRecipients, existingRecipients, successCount, failedCount 
-    } = await EmailRecipientService.saveRecipientFromRecipients(tagId, recipients);
+      noOfRecipients, existingRecipients, successCount, failedCount,  savedRecipientCount, savedRecipients
+    } = await RecipientService.saveRecipientFromRecipients(tagId, recipientsObj);
 
-    const responseObj = updateRecipientFromFileResponseMsg(noOfRecipients, existingRecipients, successCount, failedCount);
+    const mailResult = await sendRecipientWelcomeMail(savedRecipients);
+    // let unsentRecipients;
+
+    // if (!mailResult.success && mailResult.deliveredEmail.length > 0) {
+    //   unsentRecipients = Object.values(recipientsObj);
+    //   for (const email of mailResult.deliveredEmail ) {
+    //     const index = unsentRecipients.findIndex(email);
+    //     unsentRecipients.splice(index, 1);
+    //   }
+    // }
+
+    const responseObj = updateRecipientFromFileResponseMsg(noOfRecipients, existingRecipients, successCount, failedCount,  savedRecipientCount, savedRecipients);
 
     return {
       message: responseObj.responseMsg,
-      data: { ...responseObj.data }
+      data: { 
+        ...responseObj.data, 
+        mailResponse: { 
+          status: mailResult.status, 
+          deliveryEmailCount: mailResult.deliveredEmail.length, 
+          deliveredEmails: mailResult.deliveredEmail
+        }
+      }
     }
   }
 
@@ -254,21 +306,17 @@ class RecipientService {
 
     return {
       message: "Fetched email recipients for email tag",
-      data: {recipients: tag.emailRecipients}
+      data: {recipients: tag.recipients}
     }
   }
 
-  static async getRecipient( tagId, recipientId) {
-    const tag = await Tag.getById(tagId);
-    if (!tag) throw new NotFoundError("Email Tag Not Found");
+  static async getRecipient( recipientId) {
+    const recipient = await Recipient.getById(recipientId);
+    if (!recipient) throw new NotFoundError("Recipient Not Found");
     
-    const foundRecipient = tag.emailRecipients.find(recipient => recipient._id.toString() === recipientId);
-
     return {
-      message: "Check email recipient in email tag",
-      data: {
-        ...(!foundRecipient? { recipientExists: false } : { recipientExists: true, recipient: foundRecipient })
-      }
+      message: "Fetched recipient successfully",
+      data: { recipient }
     }
   }
 
@@ -321,12 +369,18 @@ class RecipientService {
     const tag = await Tag.getById(tagId);
     if (!tag) throw new NotFoundError('Email tag Not Found.');
 
-    const recipientExists = checkEmailRecipient(recipientId, tag.emailRecipients)
+    const recipient = await Recipient.getById(recipientId);
+    if (!recipient) throw new NotFoundError('Recipient Not Found.');
 
-    if (!recipientExists) throw new NotFoundError("Recipient email Not Found.");
+    const recipientContainsTag = await Recipient.getByIdAndTagId(tagId, recipientId);
+    if (recipientContainsTag) {
+      const tagRecipientWithoutTargetRecipient = tag.recipients.filter(recipient => recipient.toString() !== recipientId);
+      tag.recipients = tagRecipientWithoutTargetRecipient;
+      await tag.save()
+    }
 
-    const modifiedTagRecipients = await Tag.deleteRecipientById(tagId, recipientId);
-    if (modifiedTagRecipients.modifiedCount !== 1) throw new InternalServerError('Unable to delete recipient email')
+    const deletedRecipient = await Recipient.delete(recipientId)
+    if (deletedRecipient.modifiedCount !== 1) throw new InternalServerError('Unable to delete recipient')
 
     return {
       message: "Deleted email recipient",

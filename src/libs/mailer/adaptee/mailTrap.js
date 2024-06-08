@@ -33,10 +33,10 @@ class MailTrapAdapter extends EmailAdapter {
 				category: "Integration Test",
 			});
 
-			if (!response.success) return { success: false };
-			return { success: true };
+			if (!response.success) return { success: false, email: email.to };
+			return { success: true, email: email.to };
 		} catch (error) {
-			console.log("error ", error);
+			console.log('- Error:: MailTrapError')
 		}
 	}
 }
