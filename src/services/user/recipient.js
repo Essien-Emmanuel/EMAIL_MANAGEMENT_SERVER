@@ -157,6 +157,9 @@ class RecipientService {
 
     const recipient = await Recipient.getById(recipientId);
     if (!recipient) throw new NotFoundError("Recipient with email Not Found.");
+    
+    const recipientContainsTag = await Recipient.getByIdAndTagId(tagId, recipientId);
+    if (recipientContainsTag) throw  new ResourceConflictError("Recipient already has tag");
 
     tag.recipients.push(recipient._id);
 
@@ -165,7 +168,7 @@ class RecipientService {
 
     recipient.tag = tagId;
     
-    const updatedRecipient = await tag.save();
+    const updatedRecipient = await recipient.save();
     if (!updatedRecipient) throw new InternalServerError("Unable to update recipient");
 
     return {
@@ -284,6 +287,33 @@ class RecipientService {
     return{
       message: 'Updated email recipient email successfully.',
       data: { updatedTag: await Tag.getById(tagId) }
+    }
+  }
+
+  static async removeRecipientFromTag(tagId, recipientId) {
+    const tag = await Tag.getById(tagId);
+    if (!tag) throw new NotFoundError("Email tag Not Found.");
+
+    const recipient = await Recipient.getById(recipientId);
+    if (!recipient) throw new NotFoundError('Recipient Not Found.');
+
+    const recipientContainsTag = await Recipient.getByIdAndTagId(tagId, recipientId);
+    if (!recipientContainsTag) throw new NotFoundError('Recipient Not In this tag');
+
+    const filteredTagRecipients = tag.recipients.filter(recipient => recipient.toString() !== recipientId);
+    tag.recipients = filteredTagRecipients;
+
+    recipient.tag = null;
+
+    const updatedTag = await tag.save();
+    const updatedRecipient = await recipient.save();
+
+    if (!updatedTag) throw new InternalServerError('Unable to update tag');
+    if (!updatedRecipient) throw new InternalServerError('Unable to update recipient');
+
+    return {
+      message: "Removed recipient from tag successsfully",
+      data: { tag, recipient }
     }
   }
 

@@ -12,6 +12,7 @@ const {
   saveRecipients, 
   saveRecipientsByTagId,
   addRecipientToTag,
+  removeRecipientFromTag,
   saveRecipientsFromXlForOneTag,
   saveRecipientsFromCsvForOneTag, 
   updateRecipient, 
@@ -81,6 +82,18 @@ validateInput,
 defineController({
   async controller(req) {
     const response = await addRecipientToTag(req.query.tagId, req.query.recipientId);
+    req.return(response);
+  }
+}));
+
+router.put('/remove-from-tag', 
+tagIdSchema,
+validateInput,
+recipientIdSchema,
+validateInput,
+defineController({
+  async controller(req) {
+    const response = await removeRecipientFromTag(req.query.tagId, req.query.recipientId);
     req.return(response);
   }
 }));

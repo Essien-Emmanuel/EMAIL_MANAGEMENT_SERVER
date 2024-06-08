@@ -34,8 +34,6 @@ UserSchema.options.toJSON = {
     delete ret.password;
     delete ret.otp_status;
     delete ret.otp_expiry_date;
-    console.log('ret ', ret)
-    // You can add or remove fields to omit as needed
     return ret;
   }
 };
