@@ -84,7 +84,94 @@ class RecipientService {
     }
   }
 
-  static async saveRecipients(recipient) {
+  static async saveRecipients(recipients) {
+    console.log(recipients)
+    if (recipients.length < 1) {
+      return {
+        message: 'No recipient provided for save',
+        data: {}
+      }
+    }
+    async function saveRecipientFromRecipients() {
+      let savedSuccessCount = 0;
+      let savedFailCount = 0;
+      const existingRecipients = [];
+      const unsavedRecipients = [];
+      const savedRecipients = [];
+      
+      for (const recipient of recipients) {
+        const foundRecipient = await Recipient.getByEmail( recipient);
+        if (foundRecipient) {
+          existingRecipients.push(recipient);
+          continue
+        };
+
+        const newRecipient = await Recipient.create({ email: recipient });
+        if (!newRecipient) {
+          savedFailCount += 0;
+          unsavedRecipients.push(recipient);
+          continue;
+        }
+
+        savedSuccessCount += 1;
+        savedRecipients.push(recipient);
+
+      }
+      return {
+        savedSuccessCount,
+        savedFailCount,
+        existingRecipients,
+        unsavedRecipients,
+        savedRecipients
+      }
+    
+    }
+    
+    const savedRecipientSuccessInfo = await saveRecipientFromRecipients();
+    const { savedSuccessCount, savedRecipients } = savedRecipientSuccessInfo;
+
+    let savedAllRecipients; 
+    let successMsg;
+    let statusCode;
+
+    if (savedSuccessCount > 0 && recipients.length === savedSuccessCount) {
+      savedAllRecipients = savedRecipients;
+      successMsg = `saved email recipients`;
+      statusCode = 201;
+    } else {
+      savedAllRecipients = savedRecipientSuccessInfo;
+      successMsg = 'Result of the operation'
+      statusCode = 200;
+    }
+
+    return {
+      statusCode,
+      message: successMsg,
+      data: { ...(statusCode === 200 ? { ...savedAllRecipients } : { savedRecipients: savedAllRecipients}) }
+    }
+  }
+
+  static async addRecipientToTag(tagId, recipientId) {
+    const tag = await Tag.getById(tagId);
+    if (!tag) throw new NotFoundError("Email tag Not Found.");
+
+    const recipient = await Recipient.getById(recipientId);
+    if (!recipient) throw new NotFoundError("Recipient with email Not Found.");
+
+    tag.recipients.push(recipient._id);
+
+    const updatedTag = await tag.save();
+    if (!updatedTag) throw new InternalServerError('Unable to update tag with new recipient');
+
+    recipient.tag = tagId;
+    
+    const updatedRecipient = await tag.save();
+    if (!updatedRecipient) throw new InternalServerError("Unable to update recipient");
+
+    return {
+      message: "Added recipient to tag successfully",
+      data: { tag, recipient }
+    }
 
   }
   

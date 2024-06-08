@@ -14,6 +14,10 @@ class RecipientRepo extends GenericRepo{
   getByEmailAndTagId(tagId, email) {
     return this.model.findOne({ email, tag: tagId });
   }
+
+  getByEmail(email) {
+    return this.model.findOne({ email })
+  }
 }
 
 const Recipient = new RecipientRepo(recipientModel);
