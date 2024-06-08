@@ -94,3 +94,7 @@ exports.convertCsvToObject = (fileBuffer) => {
 
 	})
 }
+
+exports.deleteElementInList = (list, index) => {
+	return list.splice(index, 1)
+} 

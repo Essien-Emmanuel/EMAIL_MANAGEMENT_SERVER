@@ -1,10 +1,9 @@
+const { idSchemaValue } = require(".");
+
 exports.createTagSchema = (req, _res, next) => {
   const schema = {
     tag_name: { type: 'string'},
-    slug: {type: 'string'},
-    emailRecipients: { type: "array", items: { 
-      type: 'object', props: { email: { type: "email" } }
-    }, optional: true}
+    slug: {type: 'string'}
   }
   req.schema = {...schema};
   req.input = req.body;
@@ -14,11 +13,8 @@ exports.createTagSchema = (req, _res, next) => {
 
 exports.updateTagSchema = (req, _res, next) => {
   const schema = {
-    tagName: { type: 'string', optional: true},
-    slug: {type: 'string', optional: true},
-    emailRecipients: { type: "array", items: { 
-      type: 'object', props: { email: { type: "email" } }
-    }, optional: true}
+    tag_name: { type: 'string', optional: true},
+    slug: {type: 'string', optional: true}
   }
   req.schema = {...schema};
   req.input = req.body;

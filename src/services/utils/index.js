@@ -1,3 +1,5 @@
+const { APIMailer } = require('../../libs/mailer/adaptee/mailTrap');
+
 exports.checkEmailRecipient = (recipientId, recipients) => {
   let recipientExists = false;
     
@@ -13,7 +15,7 @@ exports.checkEmailRecipient = (recipientId, recipients) => {
   return recipientExists
 }
 
-exports.updateRecipientFromFileResponseMsg = (noOfRecipients, existingRecipients, successCount, failedCount) => {
+exports.updateRecipientFromFileResponseMsg = (noOfRecipients, existingRecipients, successCount, failedCount, savedRecipientCount, savedRecipients) => {
   const response = {
     responseMsg: null,
     data: {}
@@ -30,13 +32,17 @@ exports.updateRecipientFromFileResponseMsg = (noOfRecipients, existingRecipients
       response.responseMsg = `Saved ${successCount} emails out of ${noOfRecipients} with ${existingRecipients.length} existing emails`;
       response.data.existingRecipients = existingRecipients;
       response.data.successCount = successCount;
+      response.data.savedRecipientCount = savedRecipientCount;
+      response.data.savedRecipients = savedRecipients;
 
     } else if (existingRecipients.length > 0 && failedCount > 0) {
 
       response.responseMsg =  `Saved ${successCount} emails out of ${noOfRecipients} with ${existingRecipients.length} existing emails and ${failedCount} emails unable to save`;
       response.data.failedCount = failedCount;
       response.data.existingRecipients = existingRecipients;
-      response.data.successCount = successCount
+      response.data.successCount = successCount;
+      response.data.savedRecipientCount = savedRecipientCount;
+      response.data.savedRecipients = savedRecipients;
     }
   } else if (successCount === 0 && failedCount > 0) {
     response.responseMsg = `Unable to save any of the ${noOfRecipients} emails`;
@@ -46,4 +52,28 @@ exports.updateRecipientFromFileResponseMsg = (noOfRecipients, existingRecipients
     response.data.existingRecipients = existingRecipients;
   }
   return response;
+}
+
+
+exports.sendRecipientWelcomeMail = async (recipients) => {
+  const subject = "Welcome to Interactro Service 🥳";
+  const body = `We are delighted to inform you that you have been successfully added. `;
+
+  const deliveredEmail = [];
+  let emailPromises = [];
+  for (const recipient of recipients) {
+    const response = APIMailer.send({ to: recipient, subject, text: body});
+    
+    emailPromises.push(response)
+  }
+  const responses = await Promise.all(emailPromises);
+  if (responses) {
+    for (res of responses) {
+      if (res) {
+        if (res.email) deliveredEmail.push(res.email)
+      }
+      else continue
+    }
+  } 
+  return deliveredEmail.length < recipients.length ? { success: false, deliveredEmail} : {success: true, deliveredEmail};
 }

@@ -16,7 +16,6 @@ const TagSchema = new Schema({
   tag_name: { type: String, trim: true, unique: true },
   recipients: [{
     type: Schema.Types.ObjectId,
-    required: true,
     ref: "Recipient"
   }],
   user: { 

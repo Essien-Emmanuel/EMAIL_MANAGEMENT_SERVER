@@ -30,13 +30,10 @@ const UserSchema = new Schema({
 
 UserSchema.options.toJSON = {
   transform: (doc, ret, options) => {
-    console.log('here')
-    console.log('transforming user ', ret)
     delete ret.otp;
     delete ret.password;
     delete ret.otp_status;
-    console.log('ret ', ret)
-    // You can add or remove fields to omit as needed
+    delete ret.otp_expiry_date;
     return ret;
   }
 };
