@@ -77,3 +77,18 @@ exports.sendRecipientWelcomeMail = async (recipients) => {
   } 
   return deliveredEmail.length < recipients.length ? { success: false, deliveredEmail} : {success: true, deliveredEmail};
 }
+
+exports.createUnsentEmailList = (mailResult, savedRecipients) => {
+  let unsentRecipients = null; 
+
+  if (mailResult.success === false) {
+    if (mailResult.deliveredEmail.length > 0) {
+      unsentRecipients = savedRecipients;
+      for (const email of mailResult.deliveredEmail ) {
+        const index = unsentRecipients.findIndex(email);
+        unsentRecipients.splice(index, 1);
+      }
+    } else unsentRecipients = savedRecipients;
+  }
+  return unsentRecipients
+}
