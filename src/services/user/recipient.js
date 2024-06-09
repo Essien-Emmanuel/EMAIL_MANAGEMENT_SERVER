@@ -2,8 +2,13 @@ const mongoose = require('mongoose');
 const { Tag  } = require('../../database/repositories/tag.repo');
 const { Recipient } = require('../../database/repositories/recipient.repo');
 const { NotFoundError, InternalServerError, ResourceConflictError } = require('../../libs/exceptions');
-const { convertExcelFileToJsObject, convertCsvToObject, deleteElementInList } = require('../../utils');
-const { checkEmailRecipient, updateRecipientFromFileResponseMsg, sendRecipientWelcomeMail } = require('../utils/index');
+const { convertExcelFileToJsObject, convertCsvToObject, } = require('../../utils');
+const { 
+  checkEmailRecipient, 
+  updateRecipientFromFileResponseMsg, 
+  sendRecipientWelcomeMail, 
+  createUnsentEmailList 
+} = require('../utils/index');
 
 class RecipientService {
   static async saveRecipientsByTagId(tagId, recipients) {
@@ -64,15 +69,9 @@ class RecipientService {
     const { savedSuccessCount, savedRecipients } = savedRecipientSuccessInfo;
    
     const mailResult = await sendRecipientWelcomeMail(savedRecipients);
-    const unsentRecipients = savedRecipients;
-
-    if (mailResult.success === false && mailResult.deliveredEmail.length > 0) {
-      for (const email of mailResult.deliveredEmail ) {
-        const index = unsentRecipients.findIndex(email);
-        unsentRecipients.splice(index, 1);
-      }
-    } 
-
+    
+    const unsentRecipients = createUnsentEmailList(mailResult, savedRecipients);
+    
     let savedAllRecipients; 
     let successMsg;
     let statusCode;
@@ -103,7 +102,6 @@ class RecipientService {
   }
 
   static async saveRecipients(recipients) {
-    console.log(recipients)
     if (recipients.length < 1) {
       return {
         message: 'No recipient provided for save',
@@ -149,14 +147,8 @@ class RecipientService {
     const { savedSuccessCount, savedRecipients } = savedRecipientSuccessInfo;
 
     const mailResult = await sendRecipientWelcomeMail(savedRecipients);
-    const unsentRecipients = savedRecipients;
-
-    if (!mailResult.success && mailResult.deliveredEmail.length > 0) {
-      for (const email of mailResult.deliveredEmail ) {
-        const index = unsentRecipients.findIndex(email);
-        unsentRecipients.splice(index, 1);
-      }
-    }
+    
+    const unsentRecipients = createUnsentEmailList(mailResult, savedRecipients);
 
     let savedAllRecipients; 
     let successMsg;
@@ -263,14 +255,8 @@ class RecipientService {
     } = await RecipientService.saveRecipientFromRecipients(tagId, recipientsObj);
 
     const mailResult = await sendRecipientWelcomeMail(savedRecipients);
-    const unsentRecipients = savedRecipients;
-
-    if (!mailResult.success && mailResult.deliveredEmail.length > 0) {
-      for (const email of mailResult.deliveredEmail ) {
-        const index = unsentRecipients.findIndex(email);
-        unsentRecipients.splice(index, 1);
-      }
-    }
+    
+    const unsentRecipients = createUnsentEmailList(mailResult, savedRecipients);
 
     const responseObj = updateRecipientFromFileResponseMsg(noOfRecipients, existingRecipients, successCount, failedCount, savedRecipientCount, savedRecipients);
 
@@ -302,14 +288,8 @@ class RecipientService {
     } = await RecipientService.saveRecipientFromRecipients(tagId, recipientsObj);
 
     const mailResult = await sendRecipientWelcomeMail(savedRecipients);
-    const unsentRecipients = savedRecipients;
-
-    if (!mailResult.success && mailResult.deliveredEmail.length > 0) {
-      for (const email of mailResult.deliveredEmail ) {
-        const index = unsentRecipients.findIndex(email);
-        unsentRecipients.splice(index, 1);
-      }
-    }
+   
+    const unsentRecipients = createUnsentEmailList(mailResult, savedRecipients);
 
     const responseObj = updateRecipientFromFileResponseMsg(noOfRecipients, existingRecipients, successCount, failedCount,  savedRecipientCount, savedRecipients);
 
@@ -406,8 +386,8 @@ class RecipientService {
       await tag.save()
     }
 
-    const deletedRecipient = await Recipient.delete(recipientId)
-    if (deletedRecipient.modifiedCount !== 1) throw new InternalServerError('Unable to delete recipient')
+    const deletedRecipient = await Recipient.delete(recipientId);
+    if (deletedRecipient.deletedCount !== 1) throw new InternalServerError('Unable to delete recipient')
 
     return {
       message: "Deleted email recipient",
