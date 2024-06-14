@@ -10,7 +10,7 @@ const BroadCastSchema = new Schema({
     type: Schema.Types.ObjectId, 
     ref: 'Subscriber' 
   }],
-  subscribers_length: Number,
+  total_subscribers: Number,
   publish_status: { type: Boolean, default: false},
   publish_date: {
     type: Date,
