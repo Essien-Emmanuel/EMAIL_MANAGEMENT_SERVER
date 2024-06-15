@@ -11,6 +11,7 @@ class MailTrapAdapter extends EmailAdapter {
 		this.client = new MailtrapClient(config);
 	}
 	async send(email) {
+		const { to, subject, text} = email;
 		const $email = email//this.convertEmail(email);
 		try {
 			const client = this.client

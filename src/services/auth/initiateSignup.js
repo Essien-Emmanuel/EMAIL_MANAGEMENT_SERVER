@@ -4,7 +4,7 @@ const OTPValidator = require('../../utils/otpValidator');
 const { hashString, generateJwt } = require('../../utils/index');
 const { generateToken } = require('../../utils/tokenGeneration');
 const { OTPSTATUS, TokenFlag } = require('../../enums');
-const { ResourceConflictError } = require('../../libs/exceptions/index');
+const { ResourceConflictError, ServiceError } = require('../../libs/exceptions/index');
 const { APIMailer } = require('../../libs/mailer/adaptee/mailTrap');
 
 module.exports = async (signupDto) => {
@@ -26,7 +26,7 @@ module.exports = async (signupDto) => {
 
   const mailResponse = await APIMailer.send({ to: email, subject, text: body});
 
-  if (!mailResponse.success) throw new Error('Error in sending mail');
+  if (!mailResponse.success) throw new ServiceError('Error in sending mail');
    
   const createdUser = await UserService.createUser({email, password: hashedPassword, otp: hashedOtp, otp_status: OTPSTATUS.PENDING, otp_expiry_date: otpExpiryTime});
  
