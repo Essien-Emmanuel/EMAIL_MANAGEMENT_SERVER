@@ -18,3 +18,6 @@
 //   this._update.updated_at = Date.now();
 //   next();
 // });
+const date = Date.now();
+console.log(new Date(date))
+console.log('date ', new Date('2024-06-15').getMilliseconds())

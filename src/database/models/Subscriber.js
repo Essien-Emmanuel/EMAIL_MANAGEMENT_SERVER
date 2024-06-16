@@ -2,7 +2,7 @@ const { Schema, model} = require('mongoose');
 
 const SubscriberSchema = new Schema({
   first_name: String, 
-  email: { type: String, trim: true },
+  email: { type: String, trim: true, unique: true },
   is_confirmed: { type: Boolean, default: false },
   lists: [{
     type: Schema.Types.ObjectId,
@@ -10,7 +10,8 @@ const SubscriberSchema = new Schema({
   }],
   user: {
     type: Schema.Types.ObjectId,
-    ref: "User"
+    ref: "User",
+    required: true
   }
 });
 

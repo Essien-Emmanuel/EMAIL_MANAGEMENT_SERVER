@@ -15,7 +15,9 @@ const ReciepientSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true
-  }
+  },
+  is_deleted: { type: Boolean, default: false },
+  deletedAt: { type: Date }
 }, { timestamps: true });
 
 exports.recipientModel = model('Recipient', ReciepientSchema); 
