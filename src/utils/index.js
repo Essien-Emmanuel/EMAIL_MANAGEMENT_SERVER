@@ -95,6 +95,14 @@ exports.convertCsvToObject = (fileBuffer) => {
 	})
 }
 
+
+exports.checkUndoActionTime = ({ selectedTime,  days = 30 }) => {
+  const selectedTimePlusUndoDuration = selectedTime + ( days * 24 * 60 * 60 * 1000);
+  const timestamp = new Date().getTime();
+  if (selectedTimePlusUndoDuration < timestamp) return false;
+  return true
+}
+
 exports.deleteElementInList = (list, index) => {
 	return list.splice(index, 1)
 } 

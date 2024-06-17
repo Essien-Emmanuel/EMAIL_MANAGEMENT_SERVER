@@ -2,6 +2,7 @@ const { SubscripitonRequestEnum } = require("../../database/enums");
 const { Recipient } = require("../../database/repositories/recipient.repo");
 const { Subscriber } = require('../../database/repositories/subscriber.repo');
 const { NotFoundError, InternalServerError, ResourceConflictError } = require("../../libs/exceptions");
+const { checkUndoActionTime } = require("../../utils");
 
 class Subscriber {
   static async confirmSubscriptionRequest( recipientId ) {
@@ -60,36 +61,6 @@ class Subscriber {
       message: 'Added new subscriber successfully.',
       data: { newSubscriber }
     }
-  }
-
-
-
-  static async deleteRecipient( recipientId ) {
-    const recipient = await Recipient.getById(recipientId);
-    if (!recipient) throw new NotFoundError('Recipient Not Found.');
-
-    recipient.is_deleted = true;
-    recipient.deletedAt = Date.now();
-
-    const deletedRecipient = await recipient.save();
-    if (deletedRecipient.modifiedCount === 0) throw new InternalServerError('Unable to delete recipient.');
-
-    return {
-      message: 'Deleted recipient successfully. Undo action within 30 days.',
-      data: { deletedRecipient }
-    }
-  }
-
-  static async undoDeleteRecipientAction( recipientId ) {
-    const recipient = await Recipient.getById(recipientId);
-    if (!recipient) throw new NotFoundError('Recipient Not Found.');
-
-    if (!recipient.is_deleted) return {
-      message: 'Recipient is not deleted',
-      data: { recipient }
-    }
-
-    //if recipient.deletedAt - Date.now() >= 30days
   }
 }
 
