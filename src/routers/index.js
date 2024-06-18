@@ -6,7 +6,8 @@ const { providerConfigRoutes } = require('./providerConfig');
 const { mailerRoutes } = require('./mailer');
 const { tagRoutes } = require('./tag');
 const { emailRecipientRoutes } = require('./recipient');
-
+const { recipient2Routes } = require('./recipient2');
+const { subsciberRoutes } = require('./subscriber');
 
 router.use('/user/auth', authRoutes);
 router.use('/user/template', templateRoutes);
@@ -15,5 +16,7 @@ router.use('/provider/config', providerConfigRoutes);
 router.use('/user/mail', mailerRoutes);
 router.use('/user/tag', tagRoutes);
 router.use('/user/recipient', emailRecipientRoutes);
+router.use('/user/recipient2', recipient2Routes);
+router.use('/user/subscriber', subsciberRoutes)
 
 module.exports = router;

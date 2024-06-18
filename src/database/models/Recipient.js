@@ -1,6 +1,7 @@
 const { Schema, model } = require('mongoose');
 const { SubscripitonRequestEnum } = require('../enums/index');
 const ReciepientSchema = new Schema({
+  first_name: String,
   email: { type: 'string', trim: true },
   is_confirmed: { type: Boolean, default: false },
   subscription_request: { 

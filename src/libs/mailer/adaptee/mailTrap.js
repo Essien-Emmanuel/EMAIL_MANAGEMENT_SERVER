@@ -9,6 +9,7 @@ class MailTrapAdapter extends EmailAdapter {
 	constructor(config) {
 		super(config);
 		this.client = new MailtrapClient(config);
+		this.emailResponse = {}
 	}
 	async send(email) {
 		const { to, subject, text} = email;
@@ -33,12 +34,24 @@ class MailTrapAdapter extends EmailAdapter {
 				text: $email.text,
 				category: "Integration Test",
 			});
-
-			if (!response.success) return { success: false, email: email.to };
-			return { success: true, email: email.to };
+			if (response.success){ 
+				this.emailResponse.success = true;
+				this.emailResponse.email = email.to;
+				this.emailResponse.message = 'successfully sent email';
+			} else {
+				this.emailResponse.success = false;
+				this.emailResponse.email = email.to;
+				this.emailResponse.message = 'failed to send email';
+			}
 		} catch (error) {
-			console.log('- Error:: MailTrapError')
+			console.log('- Error:: MailTrapError');
+			const errorMsg = error.message
+			this.emailResponse.success = false;
+			this.emailResponse.email = email.to;
+			this.emailResponse.message = errorMsg;
 		}
+
+		return this.emailResponse;
 	}
 }
 

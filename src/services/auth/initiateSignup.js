@@ -22,7 +22,7 @@ module.exports = async (signupDto) => {
 
   //send otp mail
   const subject = "Interactro Email Verifcaton link";
-	const body = `click http://localhost:4000/api/v1/auth/email/verify?token=${otpToken} to verify you email`;
+	const body = `click http://localhost:8084/api/v1/user/auth/email/verify?token=${otpToken} to verify you email`;
 
   const mailResponse = await APIMailer.send({ to: email, subject, text: body});
 
