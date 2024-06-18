@@ -15,7 +15,7 @@ router.put('/request/confirm', defineController({
 
 router.post('/csv-import', uploadSingleFile('file'), defineController({
     async controller(req) {
-        const response = await importSubscribersFromCsv(req.file.buffer)
+        const response = await importSubscribersFromCsv(req.query.userId, req.file.buffer)
         req.return(response);
     }
 }))

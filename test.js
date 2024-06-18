@@ -19,10 +19,6 @@
 //   next();
 // });
 
-const { APIMailer } = require('./src/libs/mailer/adaptee/mailTrap');
-async function sendMail() {
-    const res = await APIMailer.send({ to: 'essienemma300dev@gmail.com', subject: 'test', text: 'testing'})
-    if (!res.success) console.log(res.message)
-    else console.log(res.message)
-}
-sendMail()
+const response = {data: { msg: {}}}
+response.data.msg = 'hello'
+console.log(response)

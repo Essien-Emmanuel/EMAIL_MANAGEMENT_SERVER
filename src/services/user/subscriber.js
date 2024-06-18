@@ -70,10 +70,65 @@ class SubscriberService {
     }
   }
 
-  static async importSubscribersFromCsv(subscribersFileBuffer) {
-    const subscribers = await convertCsvToObject(subscribersFileBuffer);
-    console.log('subscribers ', subscribers.data);
-    return { data: { convertedCsv: subscribers.isConverted}}
+  static async importSubscribersFromCsv(userId, subscribersFileBuffer) {
+    const convertedCsv = await convertCsvToObject(subscribersFileBuffer);
+    if (!convertedCsv.isConverted) throw new InternalServerError('Unable to read csv file');
+    
+    const subscribers = convertedCsv.data;
+    const demo = [
+      { id: '1', first_name: 'treasure', email: 'treasure@gmail.com' },
+      { id: '2', first_name: 'victor', email: 'victor@gmail.com' },
+      { id: '3', first_name: 'osodolor', email: 'osodolor@gmail.com' },
+      { id: '4', first_name: 'jeremiah', email: 'jeremiah@gmail.com' },
+      { id: '5', first_name: 'godswill', email: 'godswill@gmail.com' }
+    ];
+
+   //save each subscriber
+    const existingSubscribers = [];
+    const unsavedSubscribers = [];
+    const savedSubscribers = [];
+    let successCount = 0;
+
+    for (const subscriber of subscribers ) {
+      const foundSubscriber = await Subscriber.getByEmail(subscriber.email);
+      if (foundSubscriber) existingSubscribers.push(subscriber.email);
+
+      const newSubscriber = await Subscriber.create({ 
+        first_name: subscriber.first_name, 
+        email: subscriber.email, 
+        is_confirmed: true, 
+        user: userId 
+      });
+
+      if (!newSubscriber) unsavedSubscribers.push(subscriber.email);
+
+      savedSubscribers.push(subscriber.email);
+      successCount += 1;
+    }
+
+    const response = { msg: '', data: {} };
+
+    if (successCount === subscribers.length) {
+
+      response.msg = 'Successfully saved all subscribers.';
+      response.data.savedSubscribers = savedSubscribers; 
+
+    } else if (unsavedSubscribers.length === subscribers.length) {
+
+      response.msg = 'Unable to save any subscriber';
+      response.data.unsavedSubscribers = unsavedSubscribers;
+
+    } else if (successCount > 0 && successCount < subscribers.length) {
+
+      response.msg = `Saved ${successCount} subscribers`,
+      response.data.savedSubscribers = savedSubscribers;
+
+    }
+
+    return {
+      statusCode: 201,
+      ...response
+    }
   }
 }
 
