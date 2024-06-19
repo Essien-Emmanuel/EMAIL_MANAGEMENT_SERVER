@@ -16,7 +16,12 @@ const BroadCastSchema = new Schema({
   publish_date: Date,
   scheduled_time:  Date,
   opens: Number,
-  clicks: Number
+  clicks: Number,
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }
 }, {timestamps: true });
 
 

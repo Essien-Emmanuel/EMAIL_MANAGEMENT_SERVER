@@ -99,21 +99,21 @@ class SubscriberService {
       successCount += 1;
     }
 
-    const response = { msg: '', data: {} };
+    const response = { message: '', data: {} };
 
     if (successCount === subscribers.length) {
 
-      response.msg = 'Successfully saved all subscribers.';
+      response.message = 'Successfully saved all subscribers.';
       response.data.savedSubscribers = savedSubscribers; 
 
     } else if (unsavedSubscribers.length === subscribers.length) {
 
-      response.msg = 'Unable to save any subscriber';
+      response.message = 'Unable to save any subscriber';
       response.data.unsavedSubscribers = unsavedSubscribers;
 
     } else if (successCount > 0 && successCount < subscribers.length) {
 
-      response.msg = `Saved ${successCount} subscribers`,
+      response.message = `Saved ${successCount} subscribers`,
       response.data.savedSubscribers = savedSubscribers;
 
     }
