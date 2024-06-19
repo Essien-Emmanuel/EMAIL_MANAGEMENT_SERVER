@@ -1,6 +1,7 @@
 const { Schema, model } = require('mongoose');
 
 const BroadCastSchema = new Schema({
+  email: String,
   subject: String,
   from: [ {
     name: String,
@@ -12,10 +13,10 @@ const BroadCastSchema = new Schema({
   }],
   total_subscribers: Number,
   publish_status: { type: Boolean, default: false},
-  publish_date: {
-    type: Date,
-    default: Date.now
-  }
+  publish_date: Date,
+  scheduled_time:  Date,
+  opens: Number,
+  clicks: Number
 }, {timestamps: true });
 
 

@@ -5,6 +5,7 @@ const omitCommonFields = require('mongoose-omit-common-fields');
 const { OTPSTATUS } = require('../../enums');
 
 const UserSchema = new Schema({
+  name: { type: String, trim: true },
   email: { type: String, required: true, trim: true, unique: true},
   password: { type: String},
   otp: { type: String },

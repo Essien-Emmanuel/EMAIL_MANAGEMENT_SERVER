@@ -9,6 +9,10 @@ class SubscriberRepo extends GenericRepo {
   getByEmail(email) {
     return this.model.findOne({ email });
   }
+
+  getAll(filter = {}) {
+    return this.model.find(filter)
+  }
 }
 
 const Subscriber = new SubscriberRepo(SubsciberModel);

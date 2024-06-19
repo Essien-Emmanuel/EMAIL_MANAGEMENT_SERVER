@@ -1,10 +1,11 @@
 const { Schema, model } = require('mongoose');
 
 const ProviderConfigSchema = new Schema({
+  domain_email: String,
   config: { type: Object},
-  emailContainsHtmlPart: { type: Boolean, default: true},
+  email_contains_html_part: { type: Boolean, default: true},
   user: { type: String, required: true, ref: 'User'},
-  serviceProvider: { type: String, required: true, ref: 'ServiceProvider'}
+  service_provider: { type: String, required: true, ref: 'ServiceProvider'}
 }, { timestamps: true});
 
 exports.ProviderConfigModel = model('ProviderConfig', ProviderConfigSchema);

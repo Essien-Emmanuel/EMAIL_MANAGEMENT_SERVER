@@ -75,13 +75,6 @@ class SubscriberService {
     if (!convertedCsv.isConverted) throw new InternalServerError('Unable to read csv file');
     
     const subscribers = convertedCsv.data;
-    const demo = [
-      { id: '1', first_name: 'treasure', email: 'treasure@gmail.com' },
-      { id: '2', first_name: 'victor', email: 'victor@gmail.com' },
-      { id: '3', first_name: 'osodolor', email: 'osodolor@gmail.com' },
-      { id: '4', first_name: 'jeremiah', email: 'jeremiah@gmail.com' },
-      { id: '5', first_name: 'godswill', email: 'godswill@gmail.com' }
-    ];
 
    //save each subscriber
     const existingSubscribers = [];
