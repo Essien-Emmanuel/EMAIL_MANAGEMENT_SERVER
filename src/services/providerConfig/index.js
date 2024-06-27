@@ -1,5 +1,8 @@
 const { ProviderConfig } = require('../../database/repositories/providerConfig.repo');
+const { DatabaseTableName } = require('../../enums');
 const { NotFoundError, ResourceConflictError, InternalServerError } = require('../../libs/exceptions/index');
+const { normalizeStrToPascalCase } = require('../../utils');
+const { mapDtoToTableFields } = require('../utils');
 
 class ProviderConfigService {
   static async createProviderConfig(providerConfigDto) {
@@ -35,10 +38,18 @@ class ProviderConfigService {
 
   static async updateProviderConfig(filter, updateDto) {
     const {_id} = filter;
+
     const providerConfig = await ProviderConfig.getById(_id);
     if (!providerConfig) throw new NotFoundError('Provider Configuration Not Found!');
+
+    let domainName;
+    if (updateDto.domainName) {
+      domainName = normalizeStrToPascalCase(updateDto.domainName);
+    }
+
+    const updateData = mapDtoToTableFields(DatabaseTableName.PROVIDER_CONFIG, {...updateDto, domainName});
     
-    const updatedProviderConfig = await ProviderConfig.update({_id}, updateDto);
+    const updatedProviderConfig = await ProviderConfig.update({_id}, updateData);
     if (updatedProviderConfig.modifiedCount !== 1) throw new InternalServerError('Unable to update Provider Confuration field field');
 
     const fetchProviderConfiguration = await ProviderConfig.getById(_id);

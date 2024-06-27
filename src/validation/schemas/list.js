@@ -1,6 +1,6 @@
 const { idSchemaValue } = require(".");
 
-exports.createTagSchema = (req, _res, next) => {
+exports.createListSchema = (req, _res, next) => {
   const schema = {
     tag_name: { type: 'string'},
     slug: {type: 'string'}
@@ -11,7 +11,7 @@ exports.createTagSchema = (req, _res, next) => {
 
 }
 
-exports.updateTagSchema = (req, _res, next) => {
+exports.updateListSchema = (req, _res, next) => {
   const schema = {
     tag_name: { type: 'string', optional: true},
     slug: {type: 'string', optional: true}
@@ -22,7 +22,7 @@ exports.updateTagSchema = (req, _res, next) => {
 
 }
 
-exports.tagIdSchema = (req, _res, next) => {
+exports.ListIdSchema = (req, _res, next) => {
   req.schema = { tagId: idSchemaValue };
   req.input = { tagId: req.query.tagId};
   next();

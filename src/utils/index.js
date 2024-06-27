@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const xlsx = require('xlsx');
 const csv = require('csv-parser');
 const { Readable } = require('stream');
@@ -64,6 +65,13 @@ exports.normalizeString = (str) => {
 
 }
 
+exports.normalizeStrToPascalCase = (str) => {
+	return str.replace(/\s+/g, ' ')
+              .trim()
+              .split(' ')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+              .join('');
+}
 
 exports.checkValidVariables = ({variables, validVariables}) => {
 	const isObject = (data) => typeof data === 'object'
@@ -76,6 +84,10 @@ exports.checkValidVariables = ({variables, validVariables}) => {
 
 exports.replacePlaceholders = (text, values, regex = /{{(.*?)}}/g) => {
 	return text.replace(regex, (match, placeholder) => values[placeholder] || match);
+}
+
+exports.createMongooseId = (str) => {
+	return new mongoose.Types.ObjectId(str);
 }
 
 exports.convertExcelFileToJsObject = (xlFileInBuffer) => {

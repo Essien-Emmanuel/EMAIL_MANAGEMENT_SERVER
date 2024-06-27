@@ -1,6 +1,7 @@
 const {Template} = require('../../database/repositories/template.repo');
+const { DatabaseTableName } = require('../../enums');
 const { NotFoundError, InternalServerError, ResourceConflictError } = require('../../libs/exceptions');
-const { getPersonalizedVariables } = require('../utils/index');
+const { getPersonalizedVariables, mapDtoToTableFields } = require('../utils/index');
 
 class TemplateService {
   static async createTemplate(userId, templateDto) {
@@ -41,26 +42,7 @@ class TemplateService {
     const template = await Template.getById(templateId);
     if (!template) throw new NotFoundError('Template Not Found.');
 
-    function mapDtoToTableFields(dto) {
-      const dbFieldNameConvention = {
-        textContent: 'text_content',
-        htmlContent: 'html_content',
-        subjectLine: 'subject_line',
-      };
-
-      const data = {}
-
-      for (const [field, value ] of Object.entries(dto) ) {
-        if (Object.keys(dbFieldNameConvention).includes(field)) {   
-          data[dbFieldNameConvention[field]] = value
-        } else  {
-          data[field] = value
-        }
-      }
-      return data
-    }
-
-    const updateData = mapDtoToTableFields(updateDto);
+    const updateData = mapDtoToTableFields(DatabaseTableName.TEMPLATE, updateDto);
 
     let personalizedVariables;
     if (updateDto.textContent) {

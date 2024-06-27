@@ -3,7 +3,7 @@ const router = require('express').Router();
 const defineController = require('../core/defineController');
 const { ListService } = require('../services/user/list');
 
-const { createList, getList, updateList, deleteList } = ListService;
+const { createList, addSubscribersToList, getList, updateList, deleteList } = ListService;
 
 router.post('/create', defineController({
     async controller(req) {
@@ -16,6 +16,13 @@ router.get('/get', defineController({
     async controller(req) {
         const response = await getList(req.query.listId);
         req.return?.(response);
+    }
+}));
+
+router.put('/add-subscribers', defineController({
+    async controller(req) {
+      const response = await addSubscribersToList(req.query.listId, req.body.subscribers);
+      req.return(response);
     }
 }));
 

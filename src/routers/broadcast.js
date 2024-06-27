@@ -8,10 +8,10 @@ const { userIdSchema, sendBroadcastSchema } = require('../validation/schemas/bro
 const { sendBroadcast } = BroadcastService;
 
 router.post('/send', 
-    userIdSchema,
-    validateInput, 
-    sendBroadcastSchema, 
-    validateInput,
+    // userIdSchema,
+    // validateInput, 
+    // sendBroadcastSchema, 
+    // validateInput,
     defineController({
     async controller(req) {
         const { email, subject, sendingFrom, sendingTo, publishStatus, scheduledTime } = req.body;

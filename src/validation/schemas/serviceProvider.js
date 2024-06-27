@@ -11,7 +11,7 @@ exports.createServiceProviderSchema = (req, _res, next) => {
 
 exports.updateServiceProviderSchema = (req, _res, next) => {
   const schema = {
-    name: {type: 'string'},
+    name: { type: 'string'},
   }
   req.schema = {...schema};
   req.input = {
