@@ -3,9 +3,10 @@ const { Schema, model } = require('mongoose');
 const BroadCastSchema = new Schema({
   email: String,
   subject: String,
-  from: [ {
-    name: String,
-    email: { type: String, trim: true, required: true}
+  providerConfig: [ {
+    type: Schema.Types.ObjectId,
+    ref: 'ProviderConfig',
+    required: true
   }],
   subscribers: [{
     type: Schema.Types.ObjectId, 

@@ -1,17 +1,17 @@
 const { Broadcast } = require("../../database/repositories/broadcast.repo");
-const { EmailFailure } = require("../../database/repositories/emailfailure");
 const { List } = require("../../database/repositories/list.repo");
 const { ProviderConfig } = require("../../database/repositories/providerConfig.repo");
 const { ServiceProvider } = require("../../database/repositories/serviceProvider.repo");
 const { Subscriber } = require("../../database/repositories/subscriber.repo");
-const { DatabaseTableName } = require("../../enums");
 const { ValidationError, InternalServerError, NotFoundError } = require("../../libs/exceptions");
-const { MailFactory } = require("../../libs/mailer");
 const { createMongooseId,  } = require("../../utils");
-const { getPersonalizedVariables, replaceEmailPlaceholders } = require("../utils");
+const { sendMail } = require("./sendMail");
+
 
 class BroadcastService {
     static async sendBroadcast(userId, { email: htmlContent, subject, sendingFrom = [], sendingTo = [{}], scheduledTime = null, publishStatus }) {
+        const fromObjectIdArr = sendingFrom.map(providerConfig => createMongooseId(Object.values(providerConfig)[0])); 
+
         if (sendingFrom.length < 1 ) throw new ValidationError('No Sender added.')
             if (sendingTo.length < 1 ) throw new ValidationError('No Subscriber added for broadcast');
         
@@ -42,29 +42,30 @@ class BroadcastService {
         
         const subscriberListObjectIds = subscriberIdsList.map(subscriberListId => createMongooseId(subscriberListId));
 
-        // const newBroadcast = await Broadcast.create({
-        //     email,
-        //     subject,
-        //     from: sendingFrom,
-        //     subscribers: subscriberListObjectIds,
-        //     total_subscribers: subscriberIdsList.length,
-        //     publish_status: publishStatus,
-        //     ...(publishStatus ? { publish_date: Date.now() } : {}),
-        //     user: userId
-        // });
+        const newBroadcast = await Broadcast.create({
+            email: htmlContent,
+            subject,
+            providerConfig: fromObjectIdArr,
+            subscribers: subscriberListObjectIds,
+            total_subscribers: subscriberIdsList.length,
+            publish_status: publishStatus,
+            ...(publishStatus ? { publish_date: Date.now() } : {}),
+            user: userId
+        });
 
-        // if (!newBroadcast) throw new InternalServerError('Unable to create broadcast');
+        if (!newBroadcast) throw new InternalServerError('Unable to create broadcast');
 
         if (scheduledTime) {
-            // newBroadcast.scheduled_time = scheduledTime;
-            // await newBroadcast.save()
-            //send broadcast at scheduled time
-        } else {
-            //send broadcast
-            
-        }
+            newBroadcast.scheduled_time = scheduledTime;
+            await newBroadcast.save()
 
-        //send broadcast
+            return {
+                statusCode: 201,
+                message: "Broadcast created successfully.",
+                data: { newBroadcast, broadcastScheduleTime: scheduledTime }
+            }
+        } 
+
         const providerConfigId = sendingFrom[0].providerConfigId
         
         const providerConfig = await ProviderConfig.getById(providerConfigId);
@@ -74,47 +75,7 @@ class BroadcastService {
         const serviceProviderName = serviceProvider.name;
 
         const emailPayload = { subject, text: htmlContent, htmlPart: htmlContent }
-        
-        async function sendMail({providerConfig, serviceProviderName, subscriberIdsList, emailPayload}) {
-            const mailResponsePromises = []
-
-            for (const subscriberId of subscriberIdsList) {
-                const { email, first_name} = await Subscriber.getById(subscriberId);
-
-                const subscriber = { email, first_name}
-                const personalizedEmail = replaceEmailPlaceholders(emailPayload.text, subscriber);
-                                
-                const Mail = new MailFactory(providerConfig).getSender(serviceProviderName);
-                const mailResponsePromise =  Mail.send({
-                     ...emailPayload, 
-                     to: email, 
-                     text: personalizedEmail, 
-                     htmlPart: personalizedEmail
-                });
-                
-                mailResponsePromises.push(mailResponsePromise);
-            }
-            
-            let mailResponses;
-            const sentEmails = [];
-            const unsentEmails = []
-
-            try {
-                const result = await Promise.all(mailResponsePromises);
-                mailResponses = result;
-            } catch (error) {
-                console.log(error)
-                // await EmailFailure.create({ })
-            }
-
-            for (const mailResponse of mailResponses) {
-                if (mailResponse.success) sentEmails.push(mailResponse.email);
-                else unsentEmails.push(mailResponse.email);
-            }
-
-            return { sentEmails, unsentEmails }
-        }
-        
+    
         const mailResponsePromises =  await sendMail({providerConfig: providerConfig.config, 
             serviceProviderName, 
             subscriberIdsList, 
@@ -126,7 +87,7 @@ class BroadcastService {
         return {
             statusCode: 201,
             message: "Broadcast created successfully.",
-            data: { sentEmails, unsentEmails }
+            data: { newBroadcast, sentEmails, unsentEmails }
         }
     }
 
