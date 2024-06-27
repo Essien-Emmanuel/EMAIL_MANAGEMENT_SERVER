@@ -1,17 +1,20 @@
 const { Broadcast } = require("../../database/repositories/broadcast.repo");
+const { EmailFailure } = require("../../database/repositories/emailfailure");
 const { List } = require("../../database/repositories/list.repo");
 const { ProviderConfig } = require("../../database/repositories/providerConfig.repo");
+const { ServiceProvider } = require("../../database/repositories/serviceProvider.repo");
 const { Subscriber } = require("../../database/repositories/subscriber.repo");
 const { ValidationError, InternalServerError, NotFoundError } = require("../../libs/exceptions");
+const { MailFactory } = require("../../libs/mailer");
 const { createMongooseId } = require("../../utils");
 
 class BroadcastService {
-    static async sendBroadcast(userId, { email, subject, sendingFrom = [], sendingTo = [{}], scheduledTime = null, publishStatus }) {
+    static async sendBroadcast(userId, { email: htmlContent, subject, sendingFrom = [], sendingTo = [{}], scheduledTime = null, publishStatus }) {
         if (sendingFrom.length < 1 ) throw new ValidationError('No Sender added.')
         if (sendingTo.length < 1 ) throw new ValidationError('No Subscriber added for broadcast');
         
         // get subscribers id
-        const subscribersIdList = []
+        const subscriberIdsList = []
         const invalidListId = [];
         for (const recipient of sendingTo ) {
             if (recipient.listId) {
@@ -20,29 +23,29 @@ class BroadcastService {
                     invalidListId.push(recipient.listId);
                 }
                 for (const subscriberId of list.subscribers) {
-                    if (subscribersIdList.includes(subscriberId)) continue
-                    subscribersIdList.push(subscriberId.toString())
+                    if (subscriberIdsList.includes(subscriberId)) continue
+                    subscriberIdsList.push(subscriberId.toString())
                 }
             }
             
             if (recipient.subscriberId) {
-                if (subscribersIdList.includes(recipient.subscriberId)) continue;
+                if (subscriberIdsList.includes(recipient.subscriberId)) continue;
 
                 const subscriber = await Subscriber.getById(recipient.subscriberId);
                 if (!subscriber) continue;
 
-                subscribersIdList.push(recipient.subscriberId);
+                subscriberIdsList.push(recipient.subscriberId);
             }
         }
 
-        const subscriberListObjectIds = subscribersIdList.map(subscriberListId => createMongooseId(subscriberListId));
+        const subscriberListObjectIds = subscriberIdsList.map(subscriberListId => createMongooseId(subscriberListId));
 
         // const newBroadcast = await Broadcast.create({
         //     email,
         //     subject,
         //     from: sendingFrom,
         //     subscribers: subscriberListObjectIds,
-        //     total_subscribers: subscribersIdList.length,
+        //     total_subscribers: subscriberIdsList.length,
         //     publish_status: publishStatus,
         //     ...(publishStatus ? { publish_date: Date.now() } : {}),
         //     user: userId
@@ -60,28 +63,63 @@ class BroadcastService {
         }
 
         //send broadcast
-        // get the service provider config
         const providerConfigId = sendingFrom[0].providerConfigId
-
+        
         const providerConfig = await ProviderConfig.getById(providerConfigId);
         if (!providerConfig) throw new NotFoundError('Provider config not found.');
+        
+        const serviceProvider = await ServiceProvider.getById(providerConfig.service_provider);
+        const serviceProviderName = serviceProvider.name;
 
-        // iterate through the subscribers id
-        for (const subscriberId of subscribersIdList) {
-            // get each subscriber email using the id
-            const subscriber = await Subscriber.getById(subscriberId);
+        const emailPayload = { subject, text: htmlContent, htmlPart: htmlContent }
+        
+        async function sendMail({providerConfig, serviceProviderName, subscriberIdsList, emailPayload}) {
+            const mailResponsePromises = []
+            
+            for (const subscriberId of subscriberIdsList) {
+                const subscriber = await Subscriber.getById(subscriberId);
+                
+                const email = subscriber.email;
+                
+                const Mail = new MailFactory(providerConfig).getSender(serviceProviderName);
+                const mailResponsePromise =  Mail.send({ ...emailPayload, to: email});
+                
+                mailResponsePromises.push(mailResponsePromise);
+            }
+            
+            let mailResponses;
+            const sentEmails = [];
+            const unsentEmails = []
 
-            const email = subscriber.email;
-            // send email to the email addresses using service provider
+            try {
+                const result = await Promise.all(mailResponsePromises);
+                mailResponses = result;
+            } catch (error) {
+                console.log(error)
+                // await EmailFailure.create({ })
+            }
 
+            for (const mailResponse of mailResponses) {
+                if (mailResponse.success) sentEmails.push(mailResponse.email);
+                else unsentEmails.push(mailResponse.email);
+            }
+
+            return { sentEmails, unsentEmails }
         }
+        
+        const mailResponsePromises =  await sendMail({providerConfig: providerConfig.config, 
+            serviceProviderName, 
+            subscriberIdsList, 
+            emailPayload
+        });
+
+        const { sentEmails, unsentEmails } = mailResponsePromises;
 
         return {
             statusCode: 201,
             message: "Broadcast created successfully.",
-            data: { newBroadcast }
+            data: { sentEmails, unsentEmails }
         }
-
     }
 
     static async publishBroadcast() {} 
