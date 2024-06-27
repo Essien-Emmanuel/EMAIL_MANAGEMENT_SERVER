@@ -42,10 +42,21 @@ exports.extractPlaceholders = (text, regex = /{{(.*?)}}/g) => {
 	return [...text.matchAll(regex)].map(match => match[1].trim());
 }
 
+exports.removeStringDuplicatesFromArr = (arr) => {
+	const unique = arr.filter( (value, index) =>  arr.indexOf(value) === index );
+	return unique;
+}
+
+exports.removeArrDuplicatesFromArr = (arrayOfArrays) => {
+	const unique = Array.from(new Set(arrayOfArrays.map(JSON.stringify))).map(JSON.parse)
+	return unique;
+}
+
 exports.parseVariablePaths = (content) => {
 	const variablePaths = this.extractPlaceholders(content) // [ "subscriber.first_name" ]
-	const tokens = variablePaths.map(variable => variable.split('.'))
-	return tokens
+	const tokens = variablePaths.map(variable => variable.split('.'));
+	const uniqueTokens = this.removeArrDuplicatesFromArr(tokens);
+	return uniqueTokens;
 }
 
 exports.normalizeContent = (content) => {

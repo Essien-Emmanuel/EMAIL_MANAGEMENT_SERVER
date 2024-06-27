@@ -1,7 +1,7 @@
 const { Schema, model } = require('mongoose');
 
 const TemplateSchema = new Schema({
-  name: { type: String, trim: true },
+  name: { type: String, trim: true, required: true },
   subject_line: { type: String, required: true, trim: true}, 
   text_content: { type: String, required: true, trim: true},
   html_content: { type: String, required: true, trim: true }, 
