@@ -43,7 +43,6 @@ exports.mapDtoToTableFields = (tableName, dto) => {
   }
 
   const data = {}
-  console.log( Object.entries(dto))
   for (const [field, value ] of Object.entries(dto) ) {
     if (Object.keys(dbFieldNameConvention).includes(field)) {   
       data[dbFieldNameConvention[field]] = value
@@ -52,4 +51,10 @@ exports.mapDtoToTableFields = (tableName, dto) => {
     }
   }
   return data
+}
+
+exports.replaceEmailPlaceholders = (template, data) => {
+  return template.replace(/{{\s*subscriber\.(\w+)\s*}}/g, (match, property) => {
+    return data[property] || match;
+});
 }

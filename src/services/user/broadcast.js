@@ -4,14 +4,16 @@ const { List } = require("../../database/repositories/list.repo");
 const { ProviderConfig } = require("../../database/repositories/providerConfig.repo");
 const { ServiceProvider } = require("../../database/repositories/serviceProvider.repo");
 const { Subscriber } = require("../../database/repositories/subscriber.repo");
+const { DatabaseTableName } = require("../../enums");
 const { ValidationError, InternalServerError, NotFoundError } = require("../../libs/exceptions");
 const { MailFactory } = require("../../libs/mailer");
-const { createMongooseId } = require("../../utils");
+const { createMongooseId,  } = require("../../utils");
+const { getPersonalizedVariables, replaceEmailPlaceholders } = require("../utils");
 
 class BroadcastService {
     static async sendBroadcast(userId, { email: htmlContent, subject, sendingFrom = [], sendingTo = [{}], scheduledTime = null, publishStatus }) {
         if (sendingFrom.length < 1 ) throw new ValidationError('No Sender added.')
-        if (sendingTo.length < 1 ) throw new ValidationError('No Subscriber added for broadcast');
+            if (sendingTo.length < 1 ) throw new ValidationError('No Subscriber added for broadcast');
         
         // get subscribers id
         const subscriberIdsList = []
@@ -30,14 +32,14 @@ class BroadcastService {
             
             if (recipient.subscriberId) {
                 if (subscriberIdsList.includes(recipient.subscriberId)) continue;
-
+                
                 const subscriber = await Subscriber.getById(recipient.subscriberId);
                 if (!subscriber) continue;
-
+                
                 subscriberIdsList.push(recipient.subscriberId);
             }
         }
-
+        
         const subscriberListObjectIds = subscriberIdsList.map(subscriberListId => createMongooseId(subscriberListId));
 
         // const newBroadcast = await Broadcast.create({
@@ -75,14 +77,20 @@ class BroadcastService {
         
         async function sendMail({providerConfig, serviceProviderName, subscriberIdsList, emailPayload}) {
             const mailResponsePromises = []
-            
+
             for (const subscriberId of subscriberIdsList) {
-                const subscriber = await Subscriber.getById(subscriberId);
-                
-                const email = subscriber.email;
-                
+                const { email, first_name} = await Subscriber.getById(subscriberId);
+
+                const subscriber = { email, first_name}
+                const personalizedEmail = replaceEmailPlaceholders(emailPayload.text, subscriber);
+                                
                 const Mail = new MailFactory(providerConfig).getSender(serviceProviderName);
-                const mailResponsePromise =  Mail.send({ ...emailPayload, to: email});
+                const mailResponsePromise =  Mail.send({
+                     ...emailPayload, 
+                     to: email, 
+                     text: personalizedEmail, 
+                     htmlPart: personalizedEmail
+                });
                 
                 mailResponsePromises.push(mailResponsePromise);
             }
