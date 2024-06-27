@@ -9,6 +9,7 @@ const { emailRecipientRoutes } = require('./recipient');
 const { recipient2Routes } = require('./recipient2');
 const { subsciberRoutes } = require('./subscriber');
 const { broadcastRoutes } = require('./broadcast');
+const { listRoutes } = require('./list');
 
 router.use('/user/auth', authRoutes);
 router.use('/user/template', templateRoutes);
@@ -20,5 +21,6 @@ router.use('/user/recipient', emailRecipientRoutes);
 router.use('/user/recipient2', recipient2Routes);
 router.use('/user/subscriber', subsciberRoutes);
 router.use('/user/broadcast', broadcastRoutes);
+router.use('/user/lists', listRoutes);
 
 module.exports = router;

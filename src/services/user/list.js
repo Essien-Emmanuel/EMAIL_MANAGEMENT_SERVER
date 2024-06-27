@@ -1,16 +1,21 @@
 const { User } = require('../../database/repositories/user.repo');
 const { List } = require('../../database/repositories/list.repo');
 const { ResourceConflictError, InternalServerError, NotFoundError } = require('../../libs/exceptions');
+const { normalizeString } = require('../../utils');
 
 class ListService {
   static async createList(userId, listDto) {
     const user = await User.getById(userId);
     if (!user) throw new NotFoundError('User Not Found!');
 
-    const list = await List.getBySlug(listDto.slug);
+    const listName = normalizeString(listDto.name).toLowerCase()
+
+    const list = await List.getByName(listName);
     if (list) throw new ResourceConflictError('Email List Already Exists.');
 
-    const createdList = await List.create({...listDto, user: userId});
+    const listData = { ...listDto, name: listName }
+    
+    const createdList = await List.create({...listData, user: userId});
     if (!createdList) throw new InternalServerError('Unable to create Email List.');
 
     return {

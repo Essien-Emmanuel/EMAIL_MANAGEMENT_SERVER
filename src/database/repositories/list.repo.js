@@ -8,6 +8,10 @@ class ListRepo extends GenericRepo {
   getById(_id) {
     return this.model.findById(_id).populate('user').exec()
   }
+
+  getByName(name) {
+    return this.model.findOne({ name })
+  }
 }
 
 exports.List = new ListRepo(ListModel);

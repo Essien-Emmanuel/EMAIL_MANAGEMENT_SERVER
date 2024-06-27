@@ -59,8 +59,8 @@ exports.parseVariablePaths = (content) => {
 	return uniqueTokens;
 }
 
-exports.normalizeContent = (content) => {
-	return content.replace(/\s+/g, ' ').trim();
+exports.normalizeString = (str) => {
+	return str.replace(/\s+/g, ' ').trim();
 
 }
 
