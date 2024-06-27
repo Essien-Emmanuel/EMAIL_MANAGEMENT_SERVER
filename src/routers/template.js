@@ -24,7 +24,8 @@ router.put('/update', defineController({
   async controller(req) {
     const templateId = req.query.templateId;
     const updateData = req.body;
-    const response = await updateTemplate({ templateId }, updateData);
+    const userId = req.query.userId;
+    const response = await updateTemplate(userId, templateId, updateData);
     req.return(response);
   }
 }));

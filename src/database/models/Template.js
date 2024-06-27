@@ -1,13 +1,15 @@
 const { Schema, model } = require('mongoose');
 
 const TemplateSchema = new Schema({
-  name: { type: String },
-  slug: { type: String, required: true, unique: true, trim: true},
-  subject: { type: String, required: true, trim: true}, 
-  greeting: { type: String, trim: true}, 
-  htmlPart: { type: String, required: true, trim: true},
-  text: { type: String, required: true, trim: true }, 
-  personalizedVariables: [{type: String, trim: true}],
+  name: { type: String, trim: true, required: true },
+  subject_line: { type: String, required: true, trim: true}, 
+  text_content: { type: String, required: true, trim: true},
+  html_content: { type: String, required: true, trim: true }, 
+  personalized_variables: {
+    type: [{type: String, trim: true}],
+    default: []
+  },
+  personalized_greeting: { type: String, trim: true, required: false}, 
   user: {
     type: Schema.Types.ObjectId,
     required: true,

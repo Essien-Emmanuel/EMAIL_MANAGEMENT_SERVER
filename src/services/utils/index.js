@@ -1,4 +1,15 @@
 const { APIMailer } = require('../../libs/mailer/adaptee/mailTrap');
+const { parseVariablePaths } = require('../../utils');
+
+exports.getPersonalizedVariables = (textContent) => {
+	let variables;
+    const tableNameAndField = parseVariablePaths(textContent);
+    if (tableNameAndField.length > 0) {
+      variables = tableNameAndField.map(variableArr =>  variableArr[1]);
+    }
+    const personalizedVariables = variables ? variables : [];
+	return personalizedVariables
+}
 
 exports.checkEmailRecipient = (recipientId, recipients) => {
   let recipientExists = false;
@@ -14,6 +25,8 @@ exports.checkEmailRecipient = (recipientId, recipients) => {
 
   return recipientExists
 }
+
+// OLD CODE
 
 exports.updateRecipientFromFileResponseMsg = (noOfRecipients, existingRecipients, successCount, failedCount, savedRecipientCount, savedRecipients) => {
   const response = {

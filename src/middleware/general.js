@@ -8,7 +8,7 @@ const appEnv =  Object.values(AppEnv)
 
 class GeneralMiddleware {
   static ErrorHandler(error, _req, res, _next)  {
-    if (res.headerSent) return;
+    if (res.headersSent) return;
 
     if (!appEnv.includes(env)) console.log(error)
 
@@ -44,7 +44,7 @@ class GeneralMiddleware {
     });
   }
 
-  static NotFoundError(req, res, _next) {
+  static NotFoundHandler(req, res, _next) {
     return res.status(404).json({
       status: 'error',
       name: 'NotFoundError',

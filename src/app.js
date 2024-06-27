@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const routes = require('./routers/index');
-const { ErrorHandler, NotFoundError, DevLogs } = require('./middleware/general');
+const { ErrorHandler, NotFoundHandler, DevLogs } = require('./middleware/general');
 const { Tag } = require('./database/repositories/tag.repo');
 
 const APIBASE = '/api/v1';
@@ -15,7 +15,7 @@ app.use(DevLogs)
 app.use(APIBASE, routes);
 
 app.use(ErrorHandler);
-app.use(NotFoundError);
+app.use(NotFoundHandler);
 
 async function seedDb() {
   //test code

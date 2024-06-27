@@ -1,24 +1,6 @@
-// BroadCastSchema.pre('save', function(next) {
-//   this.subscriber_length = this.subscribers.length;
-//   this.updated_at = Date.now();
-//   next();
-// });
-
-// BroadCastSchema.pre('findOneAndUpdate', function(next) {
-//   if (this._update.subscribers) {
-//       this._update.subscriber_length = this._update.subscribers.length;
-//   }
-//   this._update.updated_at = Date.now();
-//   next();
-// });
-// BroadCastSchema.pre('update', function(next) {
-//   if (this._update.subscribers) {
-//       this._update.subscriber_length = this._update.subscribers.length;
-//   }
-//   this._update.updated_at = Date.now();
-//   next();
-// });
-
-const response = {data: { msg: {}}}
-response.data.msg = 'hello'
-console.log(response)
+const data = [
+    [ 'subscriber', 'first_name' ],
+    [ 'subscriber', 'email' ],
+    [ 'subscriber', 'email' ]
+  ]
+  const unique = Array.from(new Set(data.map(item => JSON.stringify(item)))).map(JSON.parse);
