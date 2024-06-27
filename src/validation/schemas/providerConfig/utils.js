@@ -11,6 +11,6 @@ exports.getServiceProviderName = async (serviceProviderId) => {
 exports.getServiceProviderNameFromConfig = async (providerConfigId) => {
   const providerConfig = await ProviderConfig.getById(providerConfigId);
   if (!providerConfig) throw new NotFoundError('Provider Config Not Found!');
-  const serviceProvider = await this.getServiceProviderName(providerConfig.serviceProvider);
+  const serviceProvider = await this.getServiceProviderName(providerConfig.service_provider);
   return serviceProvider;
 }

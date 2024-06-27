@@ -20,9 +20,12 @@ exports.updateProviderConfigSchema = async (req, _res, next) => {
   const serviceProviderName = await getServiceProviderNameFromConfig(req.query.providerConfigId);
   const configPropSchema = getConfigPropSchema(serviceProviderName);
   const schema = {
+    domainName: { type: 'string', optional: true },
+    domainEmail: { type: 'email', optional: true },
     config: {
       type: "object",
-      props: {...configPropSchema}
+      props: {...configPropSchema},
+      optional: true
     }
   } 
   req.schema = {...schema };

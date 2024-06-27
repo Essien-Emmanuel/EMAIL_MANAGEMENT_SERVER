@@ -3,7 +3,7 @@ const { Subscriber } = require("../../database/repositories/subscriber.repo");
 const { ValidationError, InternalServerError } = require("../../libs/exceptions");
 
 class BroadcastService {
-    static async sendBroadcast(userId, {email, subject, sendingFrom = [], sendingTo = [{}], scheduledTime = null, publishStatus }) {
+    static async sendBroadcast(userId, { email, subject, sendingFrom = [], sendingTo = [{}], scheduledTime = null, publishStatus }) {
         if (sendingFrom.length < 1 ) throw new ValidationError('No Sender added.')
             if (sendingTo.length < 1 ) throw new ValidationError('No Subscriber added for broadcast');
         
@@ -54,7 +54,17 @@ class BroadcastService {
 
     }
 
-    static async publishBroadcast() {}
+    static async publishBroadcast() {} 
+
+    static async scheduleBroadcast() {}
+
+    static async unscheduleBroadcast() {}
+
+    static async duplicateBroadCast() {}
+
+    static async editBroadcast(){}
+
+    static async deleteBroadcast() {}
 }
 
 exports.BroadcastService = BroadcastService;

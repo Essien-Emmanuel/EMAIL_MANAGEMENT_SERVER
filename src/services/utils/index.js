@@ -1,4 +1,3 @@
-const { APIMailer } = require('../../libs/mailer/adaptee/mailTrap');
 const { parseVariablePaths } = require('../../utils');
 
 exports.getPersonalizedVariables = (textContent) => {
@@ -26,82 +25,31 @@ exports.checkEmailRecipient = (recipientId, recipients) => {
   return recipientExists
 }
 
-// OLD CODE
+exports.mapDtoToTableFields = (tableName, dto) => {
+  let dbFieldNameConvention;
 
-exports.updateRecipientFromFileResponseMsg = (noOfRecipients, existingRecipients, successCount, failedCount, savedRecipientCount, savedRecipients) => {
-  const response = {
-    responseMsg: null,
-    data: {}
-  };
-
-  if (successCount === noOfRecipients) {
-    response.responseMsg = `Saved all ${noOfRecipients} emails successfully.`;
-    response.data.successCount = noOfRecipients;
-
-  } else if (successCount > 0 && successCount < noOfRecipients ) {
-
-    if (existingRecipients.length > 0 && failedCount === 0) {
-
-      response.responseMsg = `Saved ${successCount} emails out of ${noOfRecipients} with ${existingRecipients.length} existing emails`;
-      response.data.existingRecipients = existingRecipients;
-      response.data.successCount = successCount;
-      response.data.savedRecipientCount = savedRecipientCount;
-      response.data.savedRecipients = savedRecipients;
-
-    } else if (existingRecipients.length > 0 && failedCount > 0) {
-
-      response.responseMsg =  `Saved ${successCount} emails out of ${noOfRecipients} with ${existingRecipients.length} existing emails and ${failedCount} emails unable to save`;
-      response.data.failedCount = failedCount;
-      response.data.existingRecipients = existingRecipients;
-      response.data.successCount = successCount;
-      response.data.savedRecipientCount = savedRecipientCount;
-      response.data.savedRecipients = savedRecipients;
+  if (tableName === 'template') {
+    dbFieldNameConvention = {
+      textContent: 'text_content',
+      htmlContent: 'html_content',
+      subjectLine: 'subject_line',
+    };
+  } else if (tableName === 'providerConfig') {
+    dbFieldNameConvention = {
+      domainName: 'domain_name',
+      domainEmail: 'domain_email',
+      emailContainsHtmlPart: 'email_contains_html_part'
     }
-  } else if (successCount === 0 && failedCount > 0) {
-    response.responseMsg = `Unable to save any of the ${noOfRecipients} emails`;
-    response.data.successCount = successCount;
-  } else if (successCount === 0 && failedCount === 0) {
-    response.responseMsg = `All ${noOfRecipients} emails exists already.`;
-    response.data.existingRecipients = existingRecipients;
   }
-  return response;
-}
 
-
-exports.sendRecipientWelcomeMail = async (recipients) => {
-  const subject = "Welcome to Interactro Service 🥳";
-  const body = `We are delighted to inform you that you have been successfully added. `;
-
-  const deliveredEmail = [];
-  let emailPromises = [];
-  for (const recipient of recipients) {
-    const response = APIMailer.send({ to: recipient, subject, text: body});
-    
-    emailPromises.push(response)
-  }
-  const responses = await Promise.all(emailPromises);
-  if (responses) {
-    for (res of responses) {
-      if (res) {
-        if (res.email) deliveredEmail.push(res.email)
-      }
-      else continue
+  const data = {}
+  console.log( Object.entries(dto))
+  for (const [field, value ] of Object.entries(dto) ) {
+    if (Object.keys(dbFieldNameConvention).includes(field)) {   
+      data[dbFieldNameConvention[field]] = value
+    } else  {
+      data[field] = value
     }
-  } 
-  return deliveredEmail.length < recipients.length ? { success: false, deliveredEmail} : {success: true, deliveredEmail};
-}
-
-exports.createUnsentEmailList = (mailResult, savedRecipients) => {
-  let unsentRecipients = null; 
-
-  if (mailResult.success === false) {
-    if (mailResult.deliveredEmail.length > 0) {
-      unsentRecipients = savedRecipients;
-      for (const email of mailResult.deliveredEmail ) {
-        const index = unsentRecipients.findIndex(email);
-        unsentRecipients.splice(index, 1);
-      }
-    } else unsentRecipients = savedRecipients;
   }
-  return unsentRecipients
+  return data
 }

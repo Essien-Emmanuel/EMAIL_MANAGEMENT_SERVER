@@ -64,6 +64,13 @@ exports.normalizeString = (str) => {
 
 }
 
+exports.normalizeStrToPascalCase = (str) => {
+	return str.replace(/\s+/g, ' ')
+              .trim()
+              .split(' ')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+              .join('');
+}
 
 exports.checkValidVariables = ({variables, validVariables}) => {
 	const isObject = (data) => typeof data === 'object'
