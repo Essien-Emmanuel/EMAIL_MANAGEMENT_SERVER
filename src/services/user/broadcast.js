@@ -1,7 +1,9 @@
 const { Broadcast } = require("../../database/repositories/broadcast.repo");
 const { List } = require("../../database/repositories/list.repo");
+const { ProviderConfig } = require("../../database/repositories/providerConfig.repo");
 const { Subscriber } = require("../../database/repositories/subscriber.repo");
-const { ValidationError, InternalServerError } = require("../../libs/exceptions");
+const { ValidationError, InternalServerError, NotFoundError } = require("../../libs/exceptions");
+const { createMongooseId } = require("../../utils");
 
 class BroadcastService {
     static async sendBroadcast(userId, { email, subject, sendingFrom = [], sendingTo = [{}], scheduledTime = null, publishStatus }) {
@@ -17,44 +19,61 @@ class BroadcastService {
                 if (!list) {
                     invalidListId.push(recipient.listId);
                 }
-                list.subscribers.map(subscriberId => subscribersIdList.push(subscriberId))
+                for (const subscriberId of list.subscribers) {
+                    if (subscribersIdList.includes(subscriberId)) continue
+                    subscribersIdList.push(subscriberId.toString())
+                }
             }
             
-            const filter = recipient.subscriberId? { _id: recipient.subscriberId } : {}
-            const subscribers = await Subscriber.getAll(filter);
-            if (!subscribers) continue;
+            if (recipient.subscriberId) {
+                if (subscribersIdList.includes(recipient.subscriberId)) continue;
 
-            for (const subscriber of subscribers) {
-                subscribersIdList.push(subscriber._id.toString());
-                // const broadcast = await Broadcast.getByFilter({ email, subject, user: userId});
-                // if (!broadcast) {
-                //     continue;
-                // } 
-                // for (const foundSubscriber of broadcast.subscribers) {
-                //     if (subscriber !== foundSubscriber ) console.log()
-                // }
+                const subscriber = await Subscriber.getById(recipient.subscriberId);
+                if (!subscriber) continue;
+
+                subscribersIdList.push(recipient.subscriberId);
             }
         }
-        return { data: { subscribers: subscribersIdList}}
-        const newBroadcast = await Broadcast.create({
-            email,
-            subject,
-            from: sendingFrom,
-            subscribers: subscribersIdList,
-            total_subscribers: subscribersIdList.length,
-            publish_status: publicStatus,
-            ...(publishStatus ? { publish_date: Date.now() } : {}),
-            user: userId
-        });
 
-        if (!newBroadcast) throw new InternalServerError('Unable to create broadcast');
+        const subscriberListObjectIds = subscribersIdList.map(subscriberListId => createMongooseId(subscriberListId));
+
+        // const newBroadcast = await Broadcast.create({
+        //     email,
+        //     subject,
+        //     from: sendingFrom,
+        //     subscribers: subscriberListObjectIds,
+        //     total_subscribers: subscribersIdList.length,
+        //     publish_status: publishStatus,
+        //     ...(publishStatus ? { publish_date: Date.now() } : {}),
+        //     user: userId
+        // });
+
+        // if (!newBroadcast) throw new InternalServerError('Unable to create broadcast');
 
         if (scheduledTime) {
-            newBroadcast.scheduled_time = scheduledTime;
-            await newBroadcast.save()
+            // newBroadcast.scheduled_time = scheduledTime;
+            // await newBroadcast.save()
             //send broadcast at scheduled time
         } else {
-            //send broadcast at scheduled time
+            //send broadcast
+            
+        }
+
+        //send broadcast
+        // get the service provider config
+        const providerConfigId = sendingFrom[0].providerConfigId
+
+        const providerConfig = await ProviderConfig.getById(providerConfigId);
+        if (!providerConfig) throw new NotFoundError('Provider config not found.');
+
+        // iterate through the subscribers id
+        for (const subscriberId of subscribersIdList) {
+            // get each subscriber email using the id
+            const subscriber = await Subscriber.getById(subscriberId);
+
+            const email = subscriber.email;
+            // send email to the email addresses using service provider
+
         }
 
         return {
