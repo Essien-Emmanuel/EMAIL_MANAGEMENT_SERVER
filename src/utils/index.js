@@ -39,7 +39,18 @@ exports.compareStrings = (string, hashedString) => {
 }
 
 exports.extractPlaceholders = (text, regex = /{{(.*?)}}/g) => {
-	return [...text.matchAll(regex)].map(match => match[1]);
+	return [...text.matchAll(regex)].map(match => match[1].trim());
+}
+
+exports.parseVariablePaths = (content) => {
+	const variablePaths = this.extractPlaceholders(content) // [ "subscriber.first_name" ]
+	const tokens = variablePaths.map(variable => variable.split('.'))
+	return tokens
+}
+
+exports.normalizeContent = (content) => {
+	return content.replace(/\s+/g, ' ').trim();
+
 }
 
 

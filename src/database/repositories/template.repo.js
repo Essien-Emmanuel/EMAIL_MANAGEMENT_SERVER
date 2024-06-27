@@ -9,8 +9,8 @@ class TemplateRepo extends GenericRepo {
     return this.model.findById(_id).populate('user').exec()
   }
 
-  getBySlug(slug) {
-    return this.model.findOne({slug})
+  getByNameAndContent({ name, textContent}) {
+    return this.model.findOne({ name, text_content: textContent})
   }
 }
 

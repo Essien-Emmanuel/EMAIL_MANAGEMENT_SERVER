@@ -1,33 +1,35 @@
 const {User} = require('../../database/repositories/user.repo');
 const {Template} = require('../../database/repositories/template.repo');
-const { NotFoundError, InternalServerError } = require('../../libs/exceptions');
-const { extractPlaceholders } = require('../../utils/index');
+const { NotFoundError, InternalServerError, ResourceConflictError } = require('../../libs/exceptions');
+const { extractPlaceholders, parseVariablePaths } = require('../../utils/index');
 
 class TemplateService {
   static async createTemplate(userId, templateDto) {
-    const { slug } = templateDto;
+    const { name, textContent, htmlContent, subjectLine } = templateDto;
+    const template = await Template.getByNameAndContent({ name, textContent });
+    if (template) throw new ResourceConflictError('Template already exists.');
 
-    const user = await User.getById(userId);
-    if (!user) throw new NotFoundError('User Not Found!');
+    let variables;
+    const tableNameAndField = parseVariablePaths(textContent);
+    if (tableNameAndField.length > 0) {
+      variables = tableNameAndField.map(variableArr => variableArr[1]);
+    }
+    const personalizedVariables = variables ? { personalized_variables: variables} : { personalized_variables: []};
 
-    const template = await Template.getBySlug(slug);
-    if (template) throw new Error('Template Already Exist! Go to edit to make desired changes!');
-
-    const extractedPersonalizedVariables = extractPlaceholders(templateDto.text); 
-
-    const createdTemplate = await Template.create({...
-      templateDto, 
-      personalizedVariables: extractedPersonalizedVariables,       
+    const newTemplate = await Template.create({ 
+      ...templateDto,
+      subject_line: subjectLine,
+      text_content: textContent,
+      html_content: htmlContent,  
+      ...personalizedVariables,
       user: userId
     });
-    if (!createdTemplate) throw new InternalServerError('Unable to create Template');
-
-    // const generatedTemplate = generateEmailTemplate({subject, greeting, message});
+    if (!newTemplate) throw new InternalServerError('Unable to save template.');
 
     return {
       statusCode: 201,
       message: 'Template created successfully!',
-      data: { createdTemplate, }
+      data: { newTemplate }
     }
   }
 
