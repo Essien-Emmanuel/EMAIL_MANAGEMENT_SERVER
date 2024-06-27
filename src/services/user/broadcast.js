@@ -1,15 +1,26 @@
 const { Broadcast } = require("../../database/repositories/broadcast.repo");
+const { List } = require("../../database/repositories/list.repo");
 const { Subscriber } = require("../../database/repositories/subscriber.repo");
 const { ValidationError, InternalServerError } = require("../../libs/exceptions");
 
 class BroadcastService {
     static async sendBroadcast(userId, { email, subject, sendingFrom = [], sendingTo = [{}], scheduledTime = null, publishStatus }) {
         if (sendingFrom.length < 1 ) throw new ValidationError('No Sender added.')
-            if (sendingTo.length < 1 ) throw new ValidationError('No Subscriber added for broadcast');
+        if (sendingTo.length < 1 ) throw new ValidationError('No Subscriber added for broadcast');
         
-        const subscribersIdList = [];
-        for (const $subscribers of sendingTo ) {
-            const filter = $subscribers._id ? { _id: $subscribers._id } : {}
+        // get subscribers id
+        const subscribersIdList = []
+        const invalidListId = [];
+        for (const recipient of sendingTo ) {
+            if (recipient.listId) {
+                const list = await List.getById(recipient.listId);
+                if (!list) {
+                    invalidListId.push(recipient.listId);
+                }
+                list.subscribers.map(subscriberId => subscribersIdList.push(subscriberId))
+            }
+            
+            const filter = recipient.subscriberId? { _id: recipient.subscriberId } : {}
             const subscribers = await Subscriber.getAll(filter);
             if (!subscribers) continue;
 

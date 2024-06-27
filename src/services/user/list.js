@@ -1,7 +1,8 @@
 const { User } = require('../../database/repositories/user.repo');
 const { List } = require('../../database/repositories/list.repo');
 const { ResourceConflictError, InternalServerError, NotFoundError } = require('../../libs/exceptions');
-const { normalizeString } = require('../../utils');
+const { normalizeString, createMongooseId } = require('../../utils');
+const { Subscriber } = require('../../database/repositories/subscriber.repo');
 
 class ListService {
   static async createList(userId, listDto) {
@@ -14,20 +15,59 @@ class ListService {
     if (list) throw new ResourceConflictError('Email List Already Exists.');
 
     const listData = { ...listDto, name: listName }
-    
+
     const createdList = await List.create({...listData, user: userId});
     if (!createdList) throw new InternalServerError('Unable to create Email List.');
 
     return {
       statusCode: 201,
-      message: "Created New Email List Successfully.",
+      message: "Created New List Successfully.",
       data: { createdList }
+    }
+  }
+
+  static async createSubscriberList(subscribers) {
+    const addedSubscribers = [];
+
+    const nonExistingSubscribersId = [];
+    for (const subscriberId of subscribers) {
+      if (addedSubscribers.includes(subscriberId)) continue;
+
+      const subscriber = await Subscriber.getById(subscriberId);
+      if (!subscriber) {
+        nonExistingSubscribersId.push(subscriberId);
+        continue
+      }
+
+      const subscriberObjectId = createMongooseId(subscriberId);
+
+      addedSubscribers.push(subscriberObjectId);
+    }
+
+    return { addedSubscribers, nonExistingSubscribersId };
+  }
+
+  static async addSubscribersToList(listId, subscribers) {
+    const list = await List.getById(listId);
+    if (!list) throw new NotFoundError('List not found.');
+
+    const { addedSubscribers, nonExistingSubscribersId } = await ListService.createSubscriberList(subscribers)
+
+    list.subscribers = addedSubscribers;
+    const updatedList = await list.save();
+    if (!updatedList) throw new InternalServerError('Unable to update list subscribers');
+
+    const retrievedList = await List.getById(listId);
+
+    return {
+      message:  'Added subscribers to list successfully',
+      data: { iist: retrievedList, ...{ nonExistingSubscribersId }}
     }
   }
 
   static async getList(_id) {
     const list = await List.getById(_id);
-    if (!list) throw new NotFoundError('Email List Not Found.');
+    if (!list) throw new NotFoundError('List Not Found.');
 
     return {
       data: { list }
