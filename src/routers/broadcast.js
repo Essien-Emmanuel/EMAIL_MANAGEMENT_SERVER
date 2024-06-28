@@ -5,7 +5,7 @@ const { BroadcastService } = require('../services/user/broadcast');
 const { validateInput } = require('../validation');
 const { userIdSchema, sendBroadcastSchema } = require('../validation/schemas/broadcast');
 
-const { sendBroadcast, getAllBroadcasts, getBroadcast } = BroadcastService;
+const { sendBroadcast, getAllBroadcasts, getBroadcast, editBroadcast, deleteBroadcast } = BroadcastService;
 
 router.post('/send', 
     // userIdSchema,
@@ -35,4 +35,19 @@ router.get('/get-all', defineController({
         req.return?.(response)
     }
 }));
+
+router.put('/edit', defineController({
+    async controller(req) {
+        const response = await editBroadcast(req.query.broadcastId, req.body);
+        req.return?.(response);
+    }
+}));
+
+router.delete('/delete', defineController({
+    async controller(req) {
+        const response = await deleteBroadcast(req.query.broadcastId);
+        req.return?.(response);
+    }
+}));
+
 exports.broadcastRoutes = router;
