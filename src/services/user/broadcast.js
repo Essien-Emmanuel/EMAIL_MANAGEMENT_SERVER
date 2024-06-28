@@ -91,17 +91,64 @@ class BroadcastService {
         }
     }
 
+    
     static async publishBroadcast() {} 
-
+    
     static async scheduleBroadcast() {}
-
+    
     static async unscheduleBroadcast() {}
-
+    
     static async duplicateBroadCast() {}
+    
+    static async getBroadcast(broadcastId) {
+        const broadcast = await Broadcast.getById(broadcastId);
+        if (!broadcast) throw new NotFoundError('Broadcast not found.');
 
-    static async editBroadcast(){}
+        return {
+            message: 'Fetched broadcast successfully.',
+            data: { broadcast }
+        }
+    }
 
-    static async deleteBroadcast() {}
+    static async getAllBroadcasts(userId) {
+        const broadcasts = await Broadcast.getAll({ user: userId});
+        if (broadcasts.length < 0) throw new NotFoundError('No broadcast exist for this user.');
+
+        return {
+            message: 'Fetched all broadcasts successfully',
+            data: { broadcasts }
+        }
+    }
+
+    static async editBroadcast(broadcastId, editDto){
+        const broadcast = await Broadcast.getById(broadcastId);
+        if (!broadcast) throw new NotFoundError('Broadcast not found.');
+        
+        // Remember to constrain what can be edited using the input schema validation
+
+        const editedBroadcast = await Broadcast.update({ _id: broadcastId }, editDto);
+        if (editedBroadcast.modifiedCount !== 1) throw new InternalServerError('Unble to edit broadcast.');
+
+        const retrievedBroadcast = await Broadcast.getById(broadcastId);
+
+        return {
+            message: "Broadcast edited successfully",
+            data: { editedBroadcast: retrievedBroadcast }
+        }
+    }
+
+    static async deleteBroadcast(broadcastId) {
+        const broadcast = await Broadcast.getById(broadcastId);
+        if (!broadcast) throw new NotFoundError('Broadcast not found');
+
+        const deletedBroadcast = await Broadcast.delete(broadcastId);
+        if (deletedBroadcast.deletedCount !== 1) throw new InternalServerError('Unable to delete broadcast.');
+
+        return {
+            message: "Broadcast deleted successfully.",
+            data: { deletedBroadcastId: broadcastId }
+        }
+    }
 }
 
 exports.BroadcastService = BroadcastService;

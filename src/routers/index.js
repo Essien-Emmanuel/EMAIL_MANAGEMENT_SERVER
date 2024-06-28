@@ -14,7 +14,7 @@ router.use('/mail-service-provider', serviceProviderRoutes);
 router.use('/provider/config', providerConfigRoutes);
 router.use('/user/recipient2', recipientRoutes);
 router.use('/user/subscriber', subsciberRoutes);
-router.use('/user/broadcast', broadcastRoutes);
+router.use('/user/broadcasts', broadcastRoutes);
 router.use('/user/lists', listRoutes);
 
 module.exports = router;
