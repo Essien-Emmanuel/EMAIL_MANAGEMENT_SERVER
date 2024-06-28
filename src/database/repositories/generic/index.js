@@ -7,6 +7,10 @@ class GenericRepo {
     return this.model.findById(_id);
   }
 
+  getAll(filter) {
+    return this.model.find(filter); 
+  }
+
   create(payload) {
     return this.model.create(payload);
   }

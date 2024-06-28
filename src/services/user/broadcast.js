@@ -91,13 +91,34 @@ class BroadcastService {
         }
     }
 
+    
     static async publishBroadcast() {} 
-
+    
     static async scheduleBroadcast() {}
-
+    
     static async unscheduleBroadcast() {}
-
+    
     static async duplicateBroadCast() {}
+    
+    static async getBroadcast(broadcastId) {
+        const broadcast = await Broadcast.getById(broadcastId);
+        if (!broadcast) throw new NotFoundError('Broadcast not found.');
+
+        return {
+            message: 'Fetched broadcast successfully.',
+            data: { broadcast }
+        }
+    }
+
+    static async getAllBroadcasts(userId) {
+        const broadcasts = await Broadcast.getAll({ user: userId});
+        if (broadcasts.length < 0) throw new NotFoundError('No broadcast exist for this user.');
+
+        return {
+            message: 'Fetched all broadcasts successfully',
+            data: { broadcasts }
+        }
+    }
 
     static async editBroadcast(){}
 

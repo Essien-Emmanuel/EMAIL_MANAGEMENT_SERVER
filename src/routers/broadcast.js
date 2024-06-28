@@ -5,7 +5,7 @@ const { BroadcastService } = require('../services/user/broadcast');
 const { validateInput } = require('../validation');
 const { userIdSchema, sendBroadcastSchema } = require('../validation/schemas/broadcast');
 
-const { sendBroadcast } = BroadcastService;
+const { sendBroadcast, getAllBroadcasts, getBroadcast } = BroadcastService;
 
 router.post('/send', 
     // userIdSchema,
@@ -22,4 +22,17 @@ router.post('/send',
     }
 }));
 
+router.get('/get-one', defineController({
+    async controller(req) {
+        const response = await getBroadcast(req.query.broadcastId);
+        req.return?.(response)
+    }
+}));
+
+router.get('/get-all', defineController({
+    async controller(req) {
+        const response = await getAllBroadcasts(req.query.userId);
+        req.return?.(response)
+    }
+}));
 exports.broadcastRoutes = router;
