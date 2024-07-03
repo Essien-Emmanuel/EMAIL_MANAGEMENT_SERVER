@@ -1,4 +1,6 @@
+const { BroadcastStatusEnum } = require("../../database/enums");
 const { Broadcast } = require("../../database/repositories/broadcast.repo");
+const { Draft } = require("../../database/repositories/draft.repo");
 const { List } = require("../../database/repositories/list.repo");
 const {
   ProviderConfig,
@@ -16,6 +18,7 @@ const { createMongooseId } = require("../../utils");
 const { sendMail } = require("./sendMail");
 
 class BroadcastService {
+  /** SCHEDULE AND SEND BROADCAST */
   static async sendBroadcast(
     userId,
     {
@@ -35,7 +38,6 @@ class BroadcastService {
     if (sendingTo.length < 1)
       throw new ValidationError("No Subscriber added for broadcast");
 
-    // get subscribers id
     const subscriberIdsList = [];
     const invalidListId = [];
     for (const recipient of sendingTo) {
@@ -78,17 +80,20 @@ class BroadcastService {
     if (!newBroadcast)
       throw new InternalServerError("Unable to create broadcast");
 
+    /** SCHEDULE BROADCAST */
     if (scheduledTime) {
-      newBroadcast.scheduled_time = scheduledTime;
+      newBroadcast.status = BroadcastStatusEnum.SCHEDULED;
+      newBroadcast.scheduled_at = scheduledTime;
       await newBroadcast.save();
 
       return {
         statusCode: 201,
         message: "Broadcast created successfully.",
-        data: { newBroadcast, broadcastScheduleTime: scheduledTime },
+        data: { newBroadcast, broadcastScheduledTime: scheduledTime },
       };
     }
 
+    /** SEND BROADCAST */
     const providerConfigId = sendingFrom[0].providerConfigId;
 
     const providerConfig = await ProviderConfig.getById(providerConfigId);
@@ -110,18 +115,52 @@ class BroadcastService {
 
     const { sentEmails, unsentEmails } = mailResponsePromises;
 
+    let retrievedBroadcast;
+    if (sentEmails.length > 0) {
+      newBroadcast.status = BroadcastStatusEnum.SENT;
+      await newBroadcast.save();
+      retrievedBroadcast = await Broadcast.getById(newBroadcast._id);
+    }
+
+    const sentBroadcast = retrievedBroadcast
+      ? retrievedBroadcast
+      : newBroadcast;
+
     return {
       statusCode: 201,
       message: "Broadcast created successfully.",
-      data: { newBroadcast, sentEmails, unsentEmails },
+      data: { newBroadcast: sentBroadcast, sentEmails, unsentEmails },
     };
   }
 
-  static async publishBroadcast() {}
+  static async publishBroadcast(broadcastId) {}
 
-  static async scheduleBroadcast() {}
+  static async unscheduleBroadcast(broadcastId) {
+    const broadcast = await Broadcast.getById(broadcastId);
+    if (!broadcast) throw new NotFoundError("Broadcast not found.");
 
-  static async unscheduleBroadcast() {}
+    if (broadcast.status !== BroadcastStatusEnum.SCHEDULED)
+      throw new ValidationError("Broadcast is not scheduled");
+
+    const newDraft = await Draft.create({
+      title: broadcast.subject,
+      content: broadcast.email,
+      user: broadcast.user,
+    });
+    if (!newDraft) throw new InternalServerError("Unable to create draft");
+
+    broadcast.scheduled_at = null;
+    broadcast.status = BroadcastStatusEnum.PENDING;
+    broadcast.draft = newDraft._id;
+
+    await broadcast.save();
+
+    return {
+      statusCode: 201,
+      message: "Draft created successfully",
+      data: { newDraft },
+    };
+  }
 
   static async duplicateBroadCast(broadcastId) {
     const broadcast = await Broadcast.getById(broadcastId);

@@ -15,6 +15,7 @@ const {
   editBroadcast,
   deleteBroadcast,
   duplicateBroadCast,
+  unscheduleBroadcast,
 } = BroadcastService;
 
 router.post(
@@ -51,6 +52,16 @@ router.post(
   defineController({
     async controller(req) {
       const response = await duplicateBroadCast(req.query.broadcastId);
+      req.return?.(response);
+    },
+  })
+);
+
+router.post(
+  "/unschedule",
+  defineController({
+    async controller(req) {
+      const response = await unscheduleBroadcast(req.query.broadcastId);
       req.return?.(response);
     },
   })

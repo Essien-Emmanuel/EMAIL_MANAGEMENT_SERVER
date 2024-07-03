@@ -63,7 +63,7 @@ class SubscriberService {
     };
   }
 
-  static async includeSubscriber({ forms, sequences, lists, subscriberId }) {
+  static async includeSubscriberTo(subscriberId, { forms, sequences, lists }) {
     if (forms.length > 0) {
       // do something
     }
@@ -106,12 +106,14 @@ class SubscriberService {
     if (!newSubscriber)
       throw new InternalServerError("Unable to create new subscriber.");
 
-    const retrievedSubscriber = await SubscriberService.includeSubscriber({
-      forms,
-      lists,
-      sequences,
-      subscriberId: newSubscriber._id,
-    });
+    const retrievedSubscriber = await SubscriberService.includeSubscriberTo(
+      newSubscriber._id,
+      {
+        forms,
+        lists,
+        sequences,
+      }
+    );
 
     return {
       message: "Added new subscriber successfully.",
@@ -153,11 +155,10 @@ class SubscriberService {
         continue;
       }
 
-      await SubscriberService.includeSubscriber({
+      await SubscriberService.includeSubscriberTo(newSubscriber._id, {
         forms,
         lists,
         sequences,
-        subscriberId: newSubscriber._id,
       });
 
       savedSubscribers.push(subscriber.email);
