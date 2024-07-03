@@ -63,6 +63,33 @@ class SubscriberService {
     };
   }
 
+  static async includeSubscriber({ forms, sequences, lists, subscriberId }) {
+    if (forms.length > 0) {
+      // do something
+    }
+
+    if (sequences.length > 0) {
+      // do something
+    }
+
+    if (lists.length > 0) {
+      for (const listId of lists) {
+        const list = await List.getById(listId);
+        if (!list) continue;
+
+        list.subscribers.push(subscriberId);
+        await list.save();
+
+        const subscriber = await Subscriber.getById(subscriberId);
+        subscriber.lists.push(list._id);
+        await subscriber.save();
+      }
+    }
+
+    const retrievedSubscriber = await Subscriber.getById(subscriberId);
+    return retrievedSubscriber;
+  }
+
   static async addSubscriber(userId, payload) {
     const { firstName: first_name, email, lists, sequences, forms } = payload;
 
@@ -79,36 +106,25 @@ class SubscriberService {
     if (!newSubscriber)
       throw new InternalServerError("Unable to create new subscriber.");
 
-    if (forms.length > 0) {
-      // do something
-    }
+    const retrievedSubscriber = await SubscriberService.includeSubscriber({
+      forms,
+      lists,
+      sequences,
+      subscriberId: newSubscriber._id,
+    });
 
-    if (sequences.length > 0) {
-      // do something
-    }
-
-    if (lists.length > 0) {
-      for (const listId of lists) {
-        const list = await List.getById(listId);
-        if (!list) continue;
-
-        list.subscribers.push(newSubscriber._id);
-        await list.save();
-
-        const subscriber = await Subscriber.getById(newSubscriber._id);
-        subscriber.lists.push(list._id);
-        await subscriber.save();
-      }
-    }
-
-    const retrievedSubscriber = await Subscriber.getById(newSubscriber._id);
     return {
       message: "Added new subscriber successfully.",
       data: { newSubscriber: retrievedSubscriber },
     };
   }
 
-  static async importSubscribersFromCsv(userId, subscribersFileBuffer) {
+  static async importSubscribersFromCsv(
+    userId,
+    subscribersFileBuffer,
+    payload
+  ) {
+    const { forms, sequences, lists } = payload;
     const convertedCsv = await convertCsvToObject(subscribersFileBuffer);
     if (!convertedCsv.isConverted)
       throw new InternalServerError("Unable to read csv file");
@@ -132,7 +148,17 @@ class SubscriberService {
         user: userId,
       });
 
-      if (!newSubscriber) unsavedSubscribers.push(subscriber.email);
+      if (!newSubscriber) {
+        unsavedSubscribers.push(subscriber.email);
+        continue;
+      }
+
+      await SubscriberService.includeSubscriber({
+        forms,
+        lists,
+        sequences,
+        subscriberId: newSubscriber._id,
+      });
 
       savedSubscribers.push(subscriber.email);
       successCount += 1;
