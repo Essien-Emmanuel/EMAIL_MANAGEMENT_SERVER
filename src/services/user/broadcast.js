@@ -162,7 +162,7 @@ class BroadcastService {
     };
   }
 
-  static async duplicateBroadCast(broadcastId) {
+  static async duplicateBroadcast(broadcastId) {
     const broadcast = await Broadcast.getById(broadcastId);
     if (!broadcast) throw new NotFoundError("Broadcast not found.");
 
