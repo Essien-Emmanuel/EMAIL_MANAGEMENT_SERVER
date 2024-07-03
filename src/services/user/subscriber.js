@@ -1,127 +1,187 @@
 const { SubscripitonRequestEnum } = require("../../database/enums");
+const { List } = require("../../database/repositories/list.repo");
 const { Recipient } = require("../../database/repositories/recipient.repo");
-const { Subscriber } = require('../../database/repositories/subscriber.repo');
-const { NotFoundError, InternalServerError, ResourceConflictError, ServiceError } = require("../../libs/exceptions");
+const { Subscriber } = require("../../database/repositories/subscriber.repo");
+const {
+  NotFoundError,
+  InternalServerError,
+  ResourceConflictError,
+  ServiceError,
+} = require("../../libs/exceptions");
 const { convertCsvToObject } = require("../../utils");
 
 class SubscriberService {
-  static async confirmSubscriptionRequest( recipientId ) {
+  static async confirmSubscriptionRequest(recipientId) {
     const recipient = await Recipient.getById(recipientId);
-    if (!recipient) throw new NotFoundError('Recipient Not Found.');
-    
+    if (!recipient) throw new NotFoundError("Recipient Not Found.");
+
     const subscriber = await Subscriber.getByEmail(recipient.email);
-    if (subscriber) throw new ResourceConflictError('Recipient already exist');
+    if (subscriber) throw new ResourceConflictError("Recipient already exist");
 
     recipient.is_confirmed = true;
     recipient.subscription_request = SubscripitonRequestEnum.CONFIRMED;
 
     const updatedRecipient = await recipient.save();
-    if (updatedRecipient.modifiedCount === 0) throw new InternalServerError("Unable to update recipient.");
+    if (updatedRecipient.modifiedCount === 0)
+      throw new InternalServerError("Unable to update recipient.");
 
-    
     const newSubscriber = await Subscriber.create({
       first_name: recipient.first_name,
       email: recipient.email,
       is_confirmed: recipient.is_confirmed,
-      user: recipient.user
+      user: recipient.user,
     });
 
-    if (!newSubscriber) throw new InternalServerError('Unable to create Subscriber after subscription confirmation');
+    if (!newSubscriber)
+      throw new InternalServerError(
+        "Unable to create Subscriber after subscription confirmation"
+      );
 
-    return { 
-      message: 'Subscriber confirmed successfully.',
+    return {
+      message: "Subscriber confirmed successfully.",
       data: {
         updatedRecipient,
-        newSubscriber
-      }
-    }
+        newSubscriber,
+      },
+    };
   }
 
-  static async denySubscriptionRequest( recipientId ) {
+  static async denySubscriptionRequest(recipientId) {
     const recipient = await Recipient.getById(recipientId);
-    if ( !recipient) throw new NotFoundError('Recipient Not Found.');
+    if (!recipient) throw new NotFoundError("Recipient Not Found.");
 
     const subscriber = await Subscriber.getByEmail(recipient.email);
-    if (subscriber) throw new ServiceError('Subscriber already confirmed')
+    if (subscriber) throw new ServiceError("Subscriber already confirmed");
 
     recipient.is_confirmed = false;
     recipient.subscription_request = SubscripitonRequestEnum.DENIED;
     await recipient.save();
 
     return {
-      message: 'Subscriber denied successfully',
-      data: { deniedSubscriber: recipient }
+      message: "Subscriber denied successfully",
+      data: { deniedSubscriber: recipient },
+    };
+  }
+
+  static async includeSubscriberTo(subscriberId, { forms, sequences, lists }) {
+    if (forms.length > 0) {
+      // do something
     }
+
+    if (sequences.length > 0) {
+      // do something
+    }
+
+    if (lists.length > 0) {
+      for (const listId of lists) {
+        const list = await List.getById(listId);
+        if (!list) continue;
+
+        list.subscribers.push(subscriberId);
+        await list.save();
+
+        const subscriber = await Subscriber.getById(subscriberId);
+        subscriber.lists.push(list._id);
+        await subscriber.save();
+      }
+    }
+
+    const retrievedSubscriber = await Subscriber.getById(subscriberId);
+    return retrievedSubscriber;
   }
 
   static async addSubscriber(userId, payload) {
-    const subscriber = await Subscriber.getByEmail(payload.email);
-    if (subscriber) throw new ResourceConflictError('Subscriber already exist.');
+    const { firstName: first_name, email, lists, sequences, forms } = payload;
+
+    const subscriber = await Subscriber.getByEmail(email);
+    if (subscriber)
+      throw new ResourceConflictError("Subscriber already exist.");
 
     const newSubscriber = await Subscriber.create({
-      ...payload,
-      user: userId
+      first_name,
+      email,
+      is_confirmed: true,
+      user: userId,
     });
-    if (!newSubscriber) throw new InternalServerError('Unable to create new subscriber.');
+    if (!newSubscriber)
+      throw new InternalServerError("Unable to create new subscriber.");
+
+    const retrievedSubscriber = await SubscriberService.includeSubscriberTo(
+      newSubscriber._id,
+      {
+        forms,
+        lists,
+        sequences,
+      }
+    );
 
     return {
-      message: 'Added new subscriber successfully.',
-      data: { newSubscriber }
-    }
+      message: "Added new subscriber successfully.",
+      data: { newSubscriber: retrievedSubscriber },
+    };
   }
 
-  static async importSubscribersFromCsv(userId, subscribersFileBuffer) {
+  static async importSubscribersFromCsv(
+    userId,
+    subscribersFileBuffer,
+    payload
+  ) {
+    const { forms, sequences, lists } = payload;
     const convertedCsv = await convertCsvToObject(subscribersFileBuffer);
-    if (!convertedCsv.isConverted) throw new InternalServerError('Unable to read csv file');
-    
+    if (!convertedCsv.isConverted)
+      throw new InternalServerError("Unable to read csv file");
+
     const subscribers = convertedCsv.data;
 
-   //save each subscriber
+    //save each subscriber
     const existingSubscribers = [];
     const unsavedSubscribers = [];
     const savedSubscribers = [];
     let successCount = 0;
 
-    for (const subscriber of subscribers ) {
+    for (const subscriber of subscribers) {
       const foundSubscriber = await Subscriber.getByEmail(subscriber.email);
       if (foundSubscriber) existingSubscribers.push(subscriber.email);
 
-      const newSubscriber = await Subscriber.create({ 
-        first_name: subscriber.first_name, 
-        email: subscriber.email, 
-        is_confirmed: true, 
-        user: userId 
+      const newSubscriber = await Subscriber.create({
+        first_name: subscriber.first_name,
+        email: subscriber.email,
+        is_confirmed: true,
+        user: userId,
       });
 
-      if (!newSubscriber) unsavedSubscribers.push(subscriber.email);
+      if (!newSubscriber) {
+        unsavedSubscribers.push(subscriber.email);
+        continue;
+      }
+
+      await SubscriberService.includeSubscriberTo(newSubscriber._id, {
+        forms,
+        lists,
+        sequences,
+      });
 
       savedSubscribers.push(subscriber.email);
       successCount += 1;
     }
 
-    const response = { message: '', data: {} };
+    const response = { message: "", data: {} };
 
     if (successCount === subscribers.length) {
-
-      response.message = 'Successfully saved all subscribers.';
-      response.data.savedSubscribers = savedSubscribers; 
-
-    } else if (unsavedSubscribers.length === subscribers.length) {
-
-      response.message = 'Unable to save any subscriber';
-      response.data.unsavedSubscribers = unsavedSubscribers;
-
-    } else if (successCount > 0 && successCount < subscribers.length) {
-
-      response.message = `Saved ${successCount} subscribers`,
+      response.message = "Successfully saved all subscribers.";
       response.data.savedSubscribers = savedSubscribers;
-
+    } else if (unsavedSubscribers.length === subscribers.length) {
+      response.message = "Unable to save any subscriber";
+      response.data.unsavedSubscribers = unsavedSubscribers;
+    } else if (successCount > 0 && successCount < subscribers.length) {
+      (response.message = `Saved ${successCount} subscribers`),
+        (response.data.savedSubscribers = savedSubscribers);
     }
 
     return {
       statusCode: 201,
-      ...response
-    }
+      ...response,
+    };
   }
 }
 

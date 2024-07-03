@@ -1,4 +1,5 @@
-const multer = require('multer')
+const multer = require('multer');
+const cors = require('cors');
 const Config = require('../config');
 const { AppEnv } = require('../enums');
 
@@ -53,6 +54,8 @@ class GeneralMiddleware {
       message: `${req.url} endpoint not found!`,
     });
   }
+
+  static CORS = cors();
 
   static DevLogs(req, _res, next) {
     console.log(`request - ${req.url}`)
