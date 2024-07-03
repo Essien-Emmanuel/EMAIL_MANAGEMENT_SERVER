@@ -1,15 +1,4 @@
-function replacePlaceholders(template, data) {
-    return template.replace(/{{\s*subscriber\.(\w+)\s*}}/g, (match, property) => {
-        return data[property] || match;
-    });
-}
-// Example usage
-const template = 'Hello {{ subscriber.first_name    }}, welcome to our email services {{subscriber.email}}';
+const d = Date.now();
+const newD = d * 30 * 60
 
-const subscriber = {
-    first_name: "John",
-    email: 'john@gmail.com'
-};
-
-const personalizedEmail = replacePlaceholders(template, subscriber);
-console.log(personalizedEmail);
+console.log(new Date(newD))

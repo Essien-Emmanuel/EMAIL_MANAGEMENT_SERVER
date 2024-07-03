@@ -60,6 +60,7 @@ class SubscriberService {
 
     const newSubscriber = await Subscriber.create({
       ...payload,
+      is_confirmed: true,
       user: userId
     });
     if (!newSubscriber) throw new InternalServerError('Unable to create new subscriber.');

@@ -5,7 +5,7 @@ function defineResponse(data) {
   const sanitizedData = sanitizeData({ ...data.data }, fieldsToRemove);
   return {
     status: 'success',
-    messaage: data.message,
+    message: data.message,
     statusCode: data.statusCode || 200,
     data:   sanitizedData 
   }
