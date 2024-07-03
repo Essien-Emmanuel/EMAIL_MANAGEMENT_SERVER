@@ -23,6 +23,10 @@ const BroadCastSchema = new Schema(
     scheduled_time: Date,
     copy_count: { type: Number, default: 0 },
     isDuplicate: { type: Boolean, default: false },
+    originalBroadcastId: {
+      type: String,
+      default: null,
+    },
     opens: Number,
     clicks: Number,
     user: {

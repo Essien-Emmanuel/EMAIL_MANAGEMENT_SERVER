@@ -138,6 +138,7 @@ class BroadcastService {
       publish_status: broadcast.publish_status,
       publish_date: broadcast.publish_date,
       isDuplicate: true,
+      originalBroadcastId: createMongooseId(broadcast._id),
       user: broadcast.user,
     });
 

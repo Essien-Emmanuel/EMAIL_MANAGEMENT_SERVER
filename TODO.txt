@@ -1,30 +1,4 @@
-Email management server
-- endpoint to receive templates
-- Users can create and save email templates
-- Users can delete a template
-- Users can save their email service provider credentials
-- App will support multi email service provider channels such as MailChimp , MailGun, MailTrap, ....
-- Users can select and update the credentials of the email service provider they which to be using to send thier email
-- Users can send emails using the template
-
-next endpoints
-- create credential
-- get credential
-- update credential
-- delete credential
-- post email [using any service provider, send email using template]
-
-next functionality
-- create a resource sharing class, to handle sendiing of resources to the client with hidden fields
-
-feature
-forms for visitors to save email, ✔
-send emails to the emails they've saved
-save customers emails for automation -
-delete, send, program emails, ✔
-template should be able to collect email, save email by tags, so as to blast them at once. for campaign. e.g tronweb customers. ✔
-save email through csv, through forms✔
-manage emails.✔
+Save broadcast as draft when after schedule, it's unscheduled. increment drafts table
 
 set automations. when someone joins tags, certain email should go instantly. next day send another email maybe by time.
 
