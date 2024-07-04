@@ -73,7 +73,7 @@ class BroadcastService {
       subscribers: subscriberListObjectIds,
       total_subscribers: subscriberIdsList.length,
       publish_status: publishStatus,
-      ...(publishStatus ? { publish_date: Date.now() } : {}),
+      ...(publishStatus ? { publish_at: Date.now() } : {}),
       user: userId,
     });
 
@@ -170,14 +170,14 @@ class BroadcastService {
 
     const newBroadcastDup = await Broadcast.create({
       email: broadcast.email,
-      subject: `${broadcast.subject} (copy)`,
+      subject: broadcast.subject,
       providerConfig: broadcast.providerConfig,
       subscribers: broadcast.subscribers,
       total_subscribers: broadcast.total_subscribers,
       publish_status: broadcast.publish_status,
-      publish_date: broadcast.publish_date,
+      publish_at: broadcast.publish_at,
       isDuplicate: true,
-      originalBroadcastId: createMongooseId(broadcast._id),
+      parent_broadcast_id: createMongooseId(broadcast._id),
       user: broadcast.user,
     });
 

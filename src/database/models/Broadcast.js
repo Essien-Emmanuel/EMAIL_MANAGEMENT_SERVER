@@ -20,11 +20,11 @@ const BroadCastSchema = new Schema(
     ],
     total_subscribers: Number,
     publish_status: { type: Boolean, default: false },
-    publish_date: Date,
+    publish_at: Date,
     scheduled_at: Date,
     copy_count: { type: Number, default: 0 },
     isDuplicate: { type: Boolean, default: false },
-    originalBroadcastId: {
+    parent_broadcast_id: {
       type: String,
       default: null,
     },

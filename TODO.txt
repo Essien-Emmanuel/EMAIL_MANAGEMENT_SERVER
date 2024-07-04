@@ -4,3 +4,10 @@ set automations. when someone joins tags, certain email should go instantly. nex
 
 optional.
 monitoring opens. how many people opened the email and how to monitoring clicks. for feedback.
+
+sequence:
+fields => subject: string, personalized_email: string, scheduled_at: date, publish: bool, list / subscribers, open rate, click rate
+
+list is linked to sequence such that if someone joins the list then the sequence starts for that person. one to one
+so its current date plus the scheduled datetime
+sequence.hasMany(list) and list.belongsTo(sequence)
