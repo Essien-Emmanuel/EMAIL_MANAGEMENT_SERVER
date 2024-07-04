@@ -1,8 +1,7 @@
-const { recipientModel } = require('../models/Recipient');
-const { GenericRepo } = require('./generic');
+const { recipientModel } = require("../models/Recipient");
+const { GenericRepo } = require("./generic");
 
-// const RecipientRepo = new GenericRepo(recipientModel);
-class RecipientRepo extends GenericRepo{
+class RecipientRepo extends GenericRepo {
   constructor(model) {
     super(model);
   }
@@ -16,7 +15,7 @@ class RecipientRepo extends GenericRepo{
   }
 
   getByEmail(email) {
-    return this.model.findOne({ email })
+    return this.model.findOne({ email });
   }
 }
 
